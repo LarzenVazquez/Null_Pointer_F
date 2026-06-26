@@ -1,4 +1,8 @@
-import { Component } from '@angular/core';
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
+
+import { AppComponent } from './app.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { HeroComponent } from './components/hero/hero.component';
 import { RoomsComponent } from './components/rooms/rooms.component';
@@ -8,10 +12,11 @@ import { ChatComponent } from './components/chat/chat.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { EventoDemoComponent } from './components/evento-demo/evento-demo.component';
 
-@Component({
-  selector: 'app-root',
-  standalone: true,
+@NgModule({
+  declarations: [AppComponent],
   imports: [
+    BrowserModule,
+    FormsModule,
     NavbarComponent,
     HeroComponent,
     RoomsComponent,
@@ -21,28 +26,6 @@ import { EventoDemoComponent } from './components/evento-demo/evento-demo.compon
     FooterComponent,
     EventoDemoComponent,
   ],
-  template: `
-    <div class="site">
-      <app-navbar />
-      <!-- Barra de simulación para Práctica 6 (quitar en producción) -->
-      <app-evento-demo />
-      <app-hero />
-      <app-rooms />
-      <app-booking />
-      <app-tabs />
-      <app-chat />
-      <app-footer />
-    </div>
-  `,
-  styles: [
-    `
-      .site {
-        background: var(--np-black);
-        color: var(--np-white);
-        font-family: var(--font-mono);
-        width: 100%;
-      }
-    `,
-  ],
+  bootstrap: [AppComponent],
 })
-export class AppComponent {}
+export class AppModule {}
