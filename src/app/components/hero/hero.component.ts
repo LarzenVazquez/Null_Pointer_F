@@ -1,6 +1,6 @@
 // src/app/components/hero/hero.component.ts
-import { Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
-import { NgIf, isPlatformBrowser } from '@angular/common';
+import { Component, inject, signal, computed } from '@angular/core';
+import { NgIf } from '@angular/common';
 import {
   EventoCalendarioService,
   EventoCalendario,
@@ -13,31 +13,32 @@ import {
   template: `
     <!-- Banner de evento calendarizado -->
     <div
-      *ngIf="evento.banner"
+      *ngIf="evento().banner"
       class="np-event-banner"
-      [style.background]="evento.accentColor"
+      [style.background]="evento().accentColor"
     >
-      <span>{{ evento.banner }}</span>
+      <span>{{ evento().banner }}</span>
       <button class="np-event-close" (click)="cerrarBanner()">✕</button>
     </div>
 
-    <section class="np-hero" [style.background]="evento.bgColor">
+    <section class="np-hero" [style.background]="evento().bgColor">
       <div class="np-hero-bg-text">NP</div>
 
       <div
-        *ngIf="evento.emoji"
+        *ngIf="evento().emoji"
         class="np-event-badge"
-        [style.border-color]="evento.accentColor"
+        [style.border-color]="evento().accentColor"
       >
-        <span>{{ evento.emoji }}</span>
-        <span [style.color]="evento.accentColor">{{ evento.nombre }}</span>
+        <span>{{ evento().emoji }}</span>
+        <span [style.color]="evento().accentColor">{{ evento().nombre }}</span>
       </div>
 
       <div class="np-hero-eyebrow">// Queretaro, Mexico</div>
       <h1>
         Donde el<br />
         sonido
-        <span class="glitch" [style.color]="evento.accentColor">importa</span>.
+        <span class="glitch" [style.color]="evento().accentColor">importa</span
+        >.
       </h1>
       <p class="np-hero-sub">
         Salas de ensayo profesionales con acustica de estudio.
@@ -45,8 +46,10 @@ import {
       <div class="np-hero-actions">
         <button
           class="btn-primary"
-          [style.background]="evento.accentColor"
-          [style.color]="evento.tipo !== 'default' ? '#fff' : 'var(--np-black)'"
+          [style.background]="evento().accentColor"
+          [style.color]="
+            evento().tipo !== 'default' ? '#fff' : 'var(--np-black)'
+          "
         >
           → Reservar sala
         </button>
@@ -65,24 +68,18 @@ import {
     </section>
   `,
 })
-export class HeroComponent implements OnInit {
+export class HeroComponent {
   private eventoService = inject(EventoCalendarioService);
-  private platformId = inject(PLATFORM_ID);
 
-  evento!: EventoCalendario;
+  private bannerVisible = signal(true);
 
-  ngOnInit(): void {
-    this.evento = this.eventoService.getEventoActivo();
-
-    if (isPlatformBrowser(this.platformId)) {
-      document.addEventListener('np:cambiar-evento', (e: Event) => {
-        const custom = e as CustomEvent<EventoCalendario>;
-        this.evento = { ...custom.detail };
-      });
-    }
-  }
+  // Computed que combina el evento activo del servicio con el estado local del banner
+  evento = computed<EventoCalendario>(() => ({
+    ...this.eventoService.activeEvent(),
+    banner: this.bannerVisible() ? this.eventoService.activeEvent().banner : '',
+  }));
 
   cerrarBanner(): void {
-    this.evento = { ...this.evento, banner: '' };
+    this.bannerVisible.set(false);
   }
 }
