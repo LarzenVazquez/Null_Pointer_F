@@ -1,48 +1,31 @@
 import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from './components/navbar/navbar.component';
-import { HeroComponent } from './components/hero/hero.component';
-import { RoomsComponent } from './components/rooms/rooms.component';
-import { BookingComponent } from './components/booking/booking.component';
-import { TabsComponent } from './components/tabs/tabs.component';
-import { ChatComponent } from './components/chat/chat.component';
 import { FooterComponent } from './components/footer/footer.component';
-import { EventoDemoComponent } from './components/evento-demo/evento-demo.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [
-    NavbarComponent,
-    HeroComponent,
-    RoomsComponent,
-    BookingComponent,
-    TabsComponent,
-    ChatComponent,
-    FooterComponent,
-    EventoDemoComponent,
-  ],
+  imports: [RouterOutlet, NavbarComponent, FooterComponent],
   template: `
-    <div class="site">
+    <div class="site-shell">
       <app-navbar />
-      <!-- Barra de simulación para Práctica 6 (quitar en producción) -->
-      <app-evento-demo />
-      <app-hero />
-      <app-rooms />
-      <app-booking />
-      <app-tabs />
-      <app-chat />
+      <main class="site-main">
+        <router-outlet />
+      </main>
       <app-footer />
     </div>
   `,
-  styles: [
-    `
-      .site {
-        background: var(--np-black);
-        color: var(--np-white);
-        font-family: var(--font-mono);
-        width: 100%;
-      }
-    `,
-  ],
+  styles: [`
+    .site-shell {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: var(--np-black);
+    }
+    .site-main {
+      flex: 1;
+    }
+  `],
 })
 export class AppComponent {}

@@ -1,0 +1,6 @@
+.site {
+  background: var(--np-black);
+  color: var(--np-white);
+  font-family: var(--font-mono);
+  width: 100%;
+}
