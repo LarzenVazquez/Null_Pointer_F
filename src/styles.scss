@@ -1,14 +1,14 @@
-@use './styles/variables';
+/* 1. Definición de variables base (sin sobreescribir el :root directamente aquí si usas temas dinámicos) */
+@use "variables";
 
-/* Reset minimo */
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+/* 2. Resets y estilos base */
+@use "global";
 
-body {
-  background: var(--np-black);
-  color: var(--np-white);
-  font-family: var(--font-mono);
+/* 3. Componentes */
+@use "components";
+
+/* 4. Temas dinámicos (esto permite que los estilos globales consuman las variables inyectadas por el servicio) */
+:root {
+  --np-accent: #c8ff00; /* Valor por defecto */
+  --np-bg: #0a0a0a;
 }

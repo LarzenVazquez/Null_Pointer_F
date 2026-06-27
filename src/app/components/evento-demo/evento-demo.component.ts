@@ -11,7 +11,6 @@ interface FechaDemo {
   fecha: Date;
   tipo: EventoTipo;
 }
-
 @Component({
   selector: 'app-evento-demo',
   standalone: true,
@@ -36,65 +35,6 @@ interface FechaDemo {
       </span>
     </div>
   `,
-  styles: [
-    `
-      .demo-bar {
-        background: #111;
-        border-bottom: 1px solid #2a2a2a;
-        border-top: 2px dashed #333;
-        padding: 10px 42px;
-        display: flex;
-        align-items: center;
-        gap: 20px;
-        flex-wrap: wrap;
-        font-family: var(--font-mono);
-        font-size: 13px;
-      }
-
-      .demo-label {
-        color: var(--np-accent);
-        letter-spacing: 1.5px;
-        white-space: nowrap;
-      }
-
-      .demo-btns {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-      }
-
-      .demo-btn {
-        background: #1a1a1a;
-        border: 1px solid #333;
-        color: var(--np-gray);
-        font-family: var(--font-mono);
-        font-size: 12px;
-        padding: 5px 12px;
-        cursor: pointer;
-        letter-spacing: 1px;
-        transition: all 0.15s;
-
-        &:hover {
-          border-color: var(--np-accent);
-          color: var(--np-white);
-        }
-        &.active {
-          background: var(--np-accent);
-          color: var(--np-black);
-          border-color: var(--np-accent);
-          font-weight: 700;
-        }
-      }
-
-      .demo-current {
-        margin-left: auto;
-        color: var(--np-gray);
-        strong {
-          color: var(--np-white);
-        }
-      }
-    `,
-  ],
 })
 export class EventoDemoComponent {
   private svc = inject(EventoCalendarioService);
@@ -135,7 +75,6 @@ export class EventoDemoComponent {
     this.fechaActiva.set(f.tipo);
     const evento = this.svc.getEventoActivo(f.fecha);
     this.eventoActivo.set(evento);
-    // Comunicar al HeroComponent vía evento en el DOM
     document.dispatchEvent(
       new CustomEvent('np:cambiar-evento', { detail: evento }),
     );
