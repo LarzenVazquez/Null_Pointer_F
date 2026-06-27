@@ -1,3 +1,4 @@
+// src/app/components/evento-demo/evento-demo.component.ts
 import { Component, inject, signal } from '@angular/core';
 import { NgFor } from '@angular/common';
 import {
@@ -11,6 +12,7 @@ interface FechaDemo {
   fecha: Date;
   tipo: EventoTipo;
 }
+
 @Component({
   selector: 'app-evento-demo',
   standalone: true,

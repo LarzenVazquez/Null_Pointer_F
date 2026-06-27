@@ -1,3 +1,4 @@
+// src/app/components/hero/hero.component.ts
 import { Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
 import { NgIf, isPlatformBrowser } from '@angular/common';
 import {
@@ -10,7 +11,7 @@ import {
   standalone: true,
   imports: [NgIf],
   template: `
-    <!-- Corregido: quitamos el ? en evento.banner y evento.emoji -->
+    <!-- Banner de evento calendarizado -->
     <div
       *ngIf="evento.banner"
       class="np-event-banner"
@@ -70,14 +71,14 @@ export class HeroComponent implements OnInit {
 
   // El operador ! indica que la variable será inicializada, por eso no es nula
   evento!: EventoCalendario;
-  bannerVisible = true;
 
   ngOnInit(): void {
+    // Detecta el evento según la fecha actual del sistema
     this.evento = this.eventoService.getEventoActivo();
 
     if (isPlatformBrowser(this.platformId)) {
       document.addEventListener('np:cambiar-evento', (e: Event) => {
-        const custom = e as CustomEvent;
+        const custom = e as CustomEvent<EventoCalendario>;
         this.evento = { ...custom.detail };
       });
     }

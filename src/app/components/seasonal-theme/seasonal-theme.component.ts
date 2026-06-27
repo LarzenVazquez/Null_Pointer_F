@@ -1,3 +1,4 @@
+// src/app/components/seasonal-theme/seasonal-theme.component.ts
 import {
   Component,
   OnInit,
@@ -26,7 +27,7 @@ interface Particle {
   standalone: true,
   imports: [NgIf, NgFor],
   template: `
-    <div class="season-banner" *ngIf="active()">
+    <div class="season-banner" *ngIf="active() && !dismissed()">
       <span class="banner-msg">{{ active()!.bannerMsg }}</span>
       <button class="banner-close" (click)="dismiss()">✕</button>
     </div>
