@@ -9,3 +9,27 @@
   --np-white: #f5f5f5;
   --font-mono: "Courier New", monospace;
 }
+
+/* Transición suave al cambiar de tema estacional */
+*,
+*::before,
+*::after {
+  transition:
+    background-color 0.5s ease,
+    border-color 0.4s ease,
+    color 0.3s ease,
+    box-shadow 0.4s ease;
+}
+
+/* Excluir transición en elementos interactivos para no enlentecer la UI */
+button,
+input,
+select,
+textarea,
+a {
+  transition:
+    background-color 0.5s ease,
+    border-color 0.4s ease,
+    color 0.3s ease,
+    opacity 0.2s ease;
+}

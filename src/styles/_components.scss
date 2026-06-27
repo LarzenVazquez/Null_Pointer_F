@@ -200,7 +200,7 @@
 }
 
 .chat-header {
-  background: #0d0d0d;
+  background: var(--np-black);
   border-bottom: 1px solid #222;
   padding: 18px 24px;
   display: flex;
@@ -278,10 +278,10 @@
 }
 
 .msg-user {
-  background: #1a2800;
-  border: 1px solid #2d4000;
+  background: color-mix(in srgb, var(--np-accent) 10%, #0a0a0a);
+  border: 1px solid color-mix(in srgb, var(--np-accent) 20%, transparent);
   border-right: 2px solid var(--np-accent);
-  color: #d8ff80;
+  color: var(--np-accent);
   align-self: flex-end;
 }
 
@@ -444,7 +444,7 @@
 
 /* --- Estilos para FooterComponent --- */
 .np-footer {
-  background: #050505;
+  background: var(--np-black);
   padding: 48px 42px 32px;
   border-top: 1px solid #1a1a1a;
   display: grid;
@@ -505,7 +505,7 @@
 }
 
 .np-footer-bottom {
-  background: #030303;
+  background: var(--np-black);
   border-top: 1px solid #111;
   padding: 14px 42px;
   display: flex;
@@ -1868,7 +1868,7 @@ a.info-val {
     color: var(--np-black);
   }
   &.current .step-circle {
-    box-shadow: 0 0 0 4px rgba(200, 255, 0, 0.2);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--np-accent) 20%, transparent);
   }
 }
 

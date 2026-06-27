@@ -1,6 +1,12 @@
-// src/app/components/seasonal-theme/seasonal-theme.component.ts
-import { Component, OnDestroy, inject, signal, effect } from '@angular/core';
-import { NgIf, NgFor } from '@angular/common';
+import {
+  Component,
+  OnDestroy,
+  inject,
+  signal,
+  effect,
+  PLATFORM_ID,
+} from '@angular/core';
+import { NgIf, NgFor, isPlatformBrowser } from '@angular/common';
 import {
   EventoCalendarioService,
   EventoCalendario,
@@ -46,8 +52,10 @@ interface Particle {
 })
 export class SeasonalThemeComponent implements OnDestroy {
   private svc = inject(EventoCalendarioService);
+  private platformId = inject(PLATFORM_ID);
+  private isBrowser = isPlatformBrowser(this.platformId);
 
-  active = this.svc.activeEvent; // computed<EventoCalendario>
+  active = this.svc.activeEvent;
   dismissed = signal(false);
   showParticles = signal(true);
   particles = signal<Particle[]>([]);
@@ -55,16 +63,24 @@ export class SeasonalThemeComponent implements OnDestroy {
   private styleEl?: HTMLStyleElement;
 
   constructor() {
-    effect(() => {
-      const ev = this.active();
-      this.dismissed.set(false);
-      this.applyTheme(ev);
-      this.buildParticles(ev);
-    });
+    effect(
+      () => {
+        const ev = this.active();
+        // Solo ejecutamos lógica de DOM si estamos en el navegador
+        if (this.isBrowser) {
+          this.dismissed.set(false);
+          this.applyTheme(ev);
+          this.buildParticles(ev);
+        }
+      },
+      { allowSignalWrites: true },
+    );
   }
 
   ngOnDestroy(): void {
-    this.styleEl?.remove();
+    if (this.isBrowser) {
+      this.styleEl?.remove();
+    }
   }
 
   dismiss(): void {
@@ -83,9 +99,9 @@ export class SeasonalThemeComponent implements OnDestroy {
       this.styleEl.textContent = `
         :root {
           --np-accent:      ${ev.accentColor};
-          --np-accent2:     ${ev.accent2};
+          --np-accent2:     ${(ev as any).accent2 || '#ff4d00'};
           --np-black:       ${ev.bgColor};
-          --np-surface:     ${ev.surfaceColor};
+          --np-surface:     ${(ev as any).surfaceColor || '#1a1a1a'};
           --season-accent:  ${ev.accentColor};
         }
         body { background: ${ev.bgColor}; }
@@ -104,14 +120,15 @@ export class SeasonalThemeComponent implements OnDestroy {
   }
 
   private buildParticles(ev: EventoCalendario): void {
-    if (ev.tipo === 'default' || !ev.particles.length) {
+    const eventParticles = (ev as any).particles;
+    if (ev.tipo === 'default' || !eventParticles || !eventParticles.length) {
       this.particles.set([]);
       return;
     }
 
     const list: Particle[] = Array.from({ length: 22 }, (_, i) => ({
       id: i,
-      emoji: ev.particles[i % ev.particles.length],
+      emoji: eventParticles[i % eventParticles.length],
       left: `${Math.random() * 100}%`,
       delay: `${(Math.random() * 8).toFixed(1)}s`,
       duration: `${(6 + Math.random() * 7).toFixed(1)}s`,

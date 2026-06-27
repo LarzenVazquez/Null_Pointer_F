@@ -2,13 +2,21 @@ import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { FooterComponent } from './components/footer/footer.component';
+import { SeasonalThemeComponent } from './components/seasonal-theme/seasonal-theme.component';
 import { EventoCalendarioService } from './services/evento-calendario.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, NavbarComponent, FooterComponent],
+  imports: [
+    RouterOutlet,
+    NavbarComponent,
+    FooterComponent,
+    SeasonalThemeComponent,
+  ],
   template: `
+    <app-seasonal-theme />
+
     <div
       class="site-shell"
       [style.--accent]="activeEvent().accentColor"
