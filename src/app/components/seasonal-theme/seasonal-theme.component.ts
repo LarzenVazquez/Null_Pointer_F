@@ -1,17 +1,10 @@
 // src/app/components/seasonal-theme/seasonal-theme.component.ts
-import {
-  Component,
-  OnInit,
-  OnDestroy,
-  inject,
-  signal,
-  effect,
-} from '@angular/core';
+import { Component, OnDestroy, inject, signal, effect } from '@angular/core';
 import { NgIf, NgFor } from '@angular/common';
 import {
-  SeasonalThemeService,
-  SeasonalEvent,
-} from '../../services/seasonal-theme.service';
+  EventoCalendarioService,
+  EventoCalendario,
+} from '../../services/evento-calendario.service';
 
 interface Particle {
   id: number;
@@ -27,12 +20,18 @@ interface Particle {
   standalone: true,
   imports: [NgIf, NgFor],
   template: `
-    <div class="season-banner" *ngIf="active() && !dismissed()">
-      <span class="banner-msg">{{ active()!.bannerMsg }}</span>
+    <div
+      class="season-banner"
+      *ngIf="active().tipo !== 'default' && !dismissed()"
+    >
+      <span class="banner-msg">{{ active().banner }}</span>
       <button class="banner-close" (click)="dismiss()">✕</button>
     </div>
 
-    <div class="particles-layer" *ngIf="active() && showParticles()">
+    <div
+      class="particles-layer"
+      *ngIf="active().tipo !== 'default' && showParticles()"
+    >
       <span
         *ngFor="let p of particles()"
         class="particle"
@@ -45,10 +44,10 @@ interface Particle {
     </div>
   `,
 })
-export class SeasonalThemeComponent implements OnInit, OnDestroy {
-  private svc = inject(SeasonalThemeService);
+export class SeasonalThemeComponent implements OnDestroy {
+  private svc = inject(EventoCalendarioService);
 
-  active = this.svc.activeEvent;
+  active = this.svc.activeEvent; // computed<EventoCalendario>
   dismissed = signal(false);
   showParticles = signal(true);
   particles = signal<Particle[]>([]);
@@ -64,8 +63,6 @@ export class SeasonalThemeComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnInit(): void {}
-
   ngOnDestroy(): void {
     this.styleEl?.remove();
   }
@@ -75,21 +72,21 @@ export class SeasonalThemeComponent implements OnInit, OnDestroy {
     this.showParticles.set(false);
   }
 
-  private applyTheme(ev: SeasonalEvent | null): void {
+  private applyTheme(ev: EventoCalendario): void {
     if (!this.styleEl) {
       this.styleEl = document.createElement('style');
       this.styleEl.id = 'np-seasonal-theme';
       document.head.appendChild(this.styleEl);
     }
 
-    if (ev) {
+    if (ev.tipo !== 'default') {
       this.styleEl.textContent = `
         :root {
-          --np-accent:      ${ev.accent};
+          --np-accent:      ${ev.accentColor};
           --np-accent2:     ${ev.accent2};
           --np-black:       ${ev.bgColor};
           --np-surface:     ${ev.surfaceColor};
-          --season-accent:  ${ev.accent};
+          --season-accent:  ${ev.accentColor};
         }
         body { background: ${ev.bgColor}; }
       `;
@@ -106,8 +103,8 @@ export class SeasonalThemeComponent implements OnInit, OnDestroy {
     }
   }
 
-  private buildParticles(ev: SeasonalEvent | null): void {
-    if (!ev) {
+  private buildParticles(ev: EventoCalendario): void {
+    if (ev.tipo === 'default' || !ev.particles.length) {
       this.particles.set([]);
       return;
     }

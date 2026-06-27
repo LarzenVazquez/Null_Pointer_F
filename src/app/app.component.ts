@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { FooterComponent } from './components/footer/footer.component';
-import { SeasonalThemeService } from './services/seasonal-theme.service';
+import { EventoCalendarioService } from './services/evento-calendario.service';
 
 @Component({
   selector: 'app-root',
@@ -11,8 +11,8 @@ import { SeasonalThemeService } from './services/seasonal-theme.service';
   template: `
     <div
       class="site-shell"
-      [style.--accent]="activeEvent()?.accent"
-      [style.--bg]="activeEvent()?.bgColor || '#0a0a0a'"
+      [style.--accent]="activeEvent().accentColor"
+      [style.--bg]="activeEvent().bgColor || '#0a0a0a'"
     >
       <app-navbar />
       <main class="site-main">
@@ -27,7 +27,7 @@ import { SeasonalThemeService } from './services/seasonal-theme.service';
         display: flex;
         flex-direction: column;
         min-height: 100vh;
-        background: var(--bg); /* Utiliza la variable dinámica */
+        background: var(--bg);
         transition: background 0.5s ease;
       }
       .site-main {
@@ -37,6 +37,6 @@ import { SeasonalThemeService } from './services/seasonal-theme.service';
   ],
 })
 export class AppComponent {
-  private themeService = inject(SeasonalThemeService);
-  activeEvent = this.themeService.activeEvent; // Signal que detecta cambios de fecha
+  private themeService = inject(EventoCalendarioService);
+  activeEvent = this.themeService.activeEvent;
 }

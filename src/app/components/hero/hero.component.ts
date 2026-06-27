@@ -69,11 +69,9 @@ export class HeroComponent implements OnInit {
   private eventoService = inject(EventoCalendarioService);
   private platformId = inject(PLATFORM_ID);
 
-  // El operador ! indica que la variable será inicializada, por eso no es nula
   evento!: EventoCalendario;
 
   ngOnInit(): void {
-    // Detecta el evento según la fecha actual del sistema
     this.evento = this.eventoService.getEventoActivo();
 
     if (isPlatformBrowser(this.platformId)) {

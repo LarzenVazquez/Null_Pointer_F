@@ -75,6 +75,7 @@ export class EventoDemoComponent {
 
   simular(f: FechaDemo): void {
     this.fechaActiva.set(f.tipo);
+    this.svc.setTestDate(f.fecha); // actualiza el signal reactivo
     const evento = this.svc.getEventoActivo(f.fecha);
     this.eventoActivo.set(evento);
     document.dispatchEvent(
