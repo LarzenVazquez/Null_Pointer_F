@@ -1091,22 +1091,6 @@ h1 {
 }
 
 /* --- Estilos para SeasonalThemeComponent --- */
-.season-banner {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  z-index: 1000;
-  background: var(--season-accent, var(--np-accent));
-  color: #000;
-  font-family: var(--font-mono);
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  padding: 10px 48px 10px 20px;
-  text-align: center;
-  animation: slideDown 0.4s ease;
-}
 
 .banner-msg {
   display: inline-block;

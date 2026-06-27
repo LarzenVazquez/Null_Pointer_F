@@ -27,14 +27,6 @@ interface Particle {
   imports: [NgIf, NgFor],
   template: `
     <div
-      class="season-banner"
-      *ngIf="active().tipo !== 'default' && !dismissed()"
-    >
-      <span class="banner-msg">{{ active().banner }}</span>
-      <button class="banner-close" (click)="dismiss()">✕</button>
-    </div>
-
-    <div
       class="particles-layer"
       *ngIf="active().tipo !== 'default' && showParticles()"
     >
