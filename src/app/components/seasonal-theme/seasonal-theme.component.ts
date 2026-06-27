@@ -1,4 +1,3 @@
-// src/app/components/seasonal-theme/seasonal-theme.component.ts
 import {
   Component,
   OnDestroy,
@@ -53,7 +52,7 @@ interface Particle {
         pointer-events: none;
         z-index: 9999;
         animation: fadeOut 2s ease-in-out forwards;
-        animation-delay: 2s; /* Se mantiene 2 segundos, luego desvanece */
+        animation-delay: 2s;
       }
       @keyframes fadeOut {
         to {
@@ -82,8 +81,6 @@ export class SeasonalThemeComponent implements OnDestroy {
         if (this.isBrowser) {
           this.applyTheme(ev);
           this.buildParticles(ev);
-
-          // Ocultar las partículas del DOM después de la animación (4s total)
           setTimeout(() => this.showParticles.set(false), 4000);
         }
       },
