@@ -1,3 +1,4 @@
+// src/app/components/seasonal-theme/seasonal-theme.component.ts
 import {
   Component,
   OnDestroy,
@@ -41,6 +42,27 @@ interface Particle {
       >
     </div>
   `,
+  styles: [
+    `
+      .particles-layer {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 9999;
+        animation: fadeOut 2s ease-in-out forwards;
+        animation-delay: 2s; /* Se mantiene 2 segundos, luego desvanece */
+      }
+      @keyframes fadeOut {
+        to {
+          opacity: 0;
+          visibility: hidden;
+        }
+      }
+    `,
+  ],
 })
 export class SeasonalThemeComponent implements OnDestroy {
   private svc = inject(EventoCalendarioService);
@@ -48,7 +70,6 @@ export class SeasonalThemeComponent implements OnDestroy {
   private isBrowser = isPlatformBrowser(this.platformId);
 
   active = this.svc.activeEvent;
-  dismissed = signal(false);
   showParticles = signal(true);
   particles = signal<Particle[]>([]);
 
@@ -58,11 +79,12 @@ export class SeasonalThemeComponent implements OnDestroy {
     effect(
       () => {
         const ev = this.active();
-        // Solo ejecutamos lógica de DOM si estamos en el navegador
         if (this.isBrowser) {
-          this.dismissed.set(false);
           this.applyTheme(ev);
           this.buildParticles(ev);
+
+          // Ocultar las partículas del DOM después de la animación (4s total)
+          setTimeout(() => this.showParticles.set(false), 4000);
         }
       },
       { allowSignalWrites: true },
@@ -73,11 +95,6 @@ export class SeasonalThemeComponent implements OnDestroy {
     if (this.isBrowser) {
       this.styleEl?.remove();
     }
-  }
-
-  dismiss(): void {
-    this.dismissed.set(true);
-    this.showParticles.set(false);
   }
 
   private applyTheme(ev: EventoCalendario): void {
@@ -91,9 +108,7 @@ export class SeasonalThemeComponent implements OnDestroy {
       this.styleEl.textContent = `
         :root {
           --np-accent:      ${ev.accentColor};
-          --np-accent2:     ${(ev as any).accent2 || '#ff4d00'};
           --np-black:       ${ev.bgColor};
-          --np-surface:     ${(ev as any).surfaceColor || '#1a1a1a'};
           --season-accent:  ${ev.accentColor};
         }
         body { background: ${ev.bgColor}; }
@@ -102,9 +117,7 @@ export class SeasonalThemeComponent implements OnDestroy {
       this.styleEl.textContent = `
         :root {
           --np-accent:   #c8ff00;
-          --np-accent2:  #ff4d00;
           --np-black:    #0a0a0a;
-          --np-surface:  #1a1a1a;
         }
         body { background: #0a0a0a; }
       `;
@@ -122,8 +135,8 @@ export class SeasonalThemeComponent implements OnDestroy {
       id: i,
       emoji: eventParticles[i % eventParticles.length],
       left: `${Math.random() * 100}%`,
-      delay: `${(Math.random() * 8).toFixed(1)}s`,
-      duration: `${(6 + Math.random() * 7).toFixed(1)}s`,
+      delay: `${(Math.random() * 2).toFixed(1)}s`,
+      duration: `${(3 + Math.random() * 2).toFixed(1)}s`,
       size: `${18 + Math.floor(Math.random() * 18)}px`,
     }));
 
