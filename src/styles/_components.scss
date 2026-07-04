@@ -1,35 +1,38 @@
-// Ejemplo de clase de botón que podrías usar en varias partes
-.btn-main {
-  padding: 12px 24px;
-  background-color: var(--np-accent);
-  color: var(--np-black);
-  border: none;
-  font-weight: bold;
-  cursor: pointer;
-  text-transform: uppercase;
-  transition: opacity 0.3s ease;
+// ============================================================
+// SHARED / BASE
+// ============================================================
 
-  &:hover {
-    opacity: 0.8;
-  }
-}
-
-// Ejemplo de contenedor común
+// Contenedor genérico
 .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
 }
 
-/* booking components */
-/* src/styles/_components.scss */
-
-// Estilos para la sección de reserva
+// Sección base compartida por booking, rooms, tabs, etc.
 .np-section {
   padding: 49px 42px;
   border-bottom: 1px solid var(--np-surface);
 }
 
+// Breadcrumb compartido (Reservas, Contacto, Nosotros)
+.np-breadcrumb {
+  padding: 14px 42px;
+  font-size: 13px;
+  color: var(--np-gray);
+  border-bottom: 1px solid #1a1a1a;
+  display: flex;
+  gap: 8px;
+  a {
+    color: var(--np-accent);
+    text-decoration: none;
+  }
+  .sep {
+    color: #444;
+  }
+}
+
+// Título de sección compartido (booking + rooms)
 .np-section-title {
   font-size: 19px;
   letter-spacing: 3.5px;
@@ -41,6 +44,219 @@
     margin-right: 10.5px;
   }
 }
+
+// Eyebrow / label pequeño de sección (múltiples componentes)
+.section-label,
+.section-eyebrow,
+.about-eyebrow,
+.np-footer-col-title {
+  font-size: 13px;
+  letter-spacing: 3px;
+  color: var(--np-accent);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+// Badge compartido por np-room-badge y sala-opt-badge
+.np-room-badge,
+.sala-opt-badge {
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  display: inline-block;
+  margin-bottom: 10px;
+  &.badge-popular {
+    background: var(--np-accent);
+    color: var(--np-black);
+  }
+  &.badge-pro {
+    background: var(--np-accent2);
+    color: #fff;
+  }
+  &.badge-std {
+    background: #222;
+    color: var(--np-gray);
+    border: 1px solid #333;
+  }
+}
+
+// Botón primario base (accent + mono + uppercase + hover opacity)
+// Compartido por: .btn-main, .np-booking-btn, .np-cta-btn, .cta-btn,
+//                 .chat-send, .btn-paso, .btn-confirmar, .submit-btn
+%btn-accent-base {
+  background: var(--np-accent);
+  color: var(--np-black);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  &:hover {
+    opacity: 0.85;
+  }
+}
+
+.btn-main {
+  @extend %btn-accent-base;
+  padding: 12px 24px;
+  font-size: 16px;
+}
+
+.np-booking-btn {
+  @extend %btn-accent-base;
+  width: 100%;
+  font-size: 16px;
+  letter-spacing: 3.5px;
+  padding: 17.5px;
+  margin-top: 17.5px;
+}
+
+.np-cta-btn {
+  @extend %btn-accent-base;
+  font-size: 14px;
+  letter-spacing: 2px;
+  padding: 9px 22px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.cta-btn {
+  @extend %btn-accent-base;
+  font-size: 14px;
+  letter-spacing: 2px;
+  padding: 16px 32px;
+  text-decoration: none;
+}
+
+.chat-send {
+  @extend %btn-accent-base;
+  font-size: 15px;
+  letter-spacing: 2px;
+  padding: 16px 24px;
+  white-space: nowrap;
+}
+
+.btn-paso,
+.btn-confirmar {
+  @extend %btn-accent-base;
+  font-size: 14px;
+  letter-spacing: 2px;
+  padding: 14px 28px;
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+  &:not(:disabled):hover {
+    opacity: 0.85;
+  }
+}
+.btn-confirmar {
+  padding: 14px 32px;
+}
+
+.submit-btn {
+  @extend %btn-accent-base;
+  font-size: 14px;
+  letter-spacing: 2px;
+  padding: 14px 28px;
+  align-self: flex-start;
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+  &:not(:disabled):hover {
+    opacity: 0.85;
+  }
+}
+
+// Botón volver / secundario
+.btn-back {
+  background: transparent;
+  border: 1px solid #333;
+  color: var(--np-gray);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  padding: 14px 22px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  &:hover {
+    border-color: #666;
+    color: var(--np-white);
+  }
+}
+
+// Animación fadeIn compartida
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+// Campo de formulario compartido (booking + contacto + reservas)
+.np-field {
+  label {
+    display: block;
+    font-size: 12px;
+    color: var(--np-gray);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  input,
+  select,
+  textarea {
+    width: 100%;
+    background: #0f0f0f;
+    border: 1px solid #2a2a2a;
+    color: var(--np-white);
+    font-family: var(--font-mono);
+    font-size: 16px;
+    padding: 11px 16px;
+    transition: border-color 0.2s;
+    &:focus {
+      outline: none;
+      border-color: var(--np-accent);
+    }
+  }
+  textarea {
+    resize: vertical;
+  }
+}
+
+// Grid de formulario de 2 columnas
+.form-grid,
+.np-booking-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.form-grid .full {
+  grid-column: 1 / -1;
+}
+
+// Icono circular con acento (avatar agente, confirmación, enviado)
+%accent-circle-icon {
+  background: var(--np-accent);
+  color: var(--np-black);
+  border-radius: 50%;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// ============================================================
+// BOOKING COMPONENT
+// ============================================================
 
 .np-booking {
   background: var(--np-surface);
@@ -56,138 +272,10 @@
   margin-bottom: 21px;
 }
 
-.np-booking-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
+// ============================================================
+// CHAT COMPONENT
+// ============================================================
 
-.np-field {
-  label {
-    font-size: 14px;
-    color: var(--np-gray);
-    letter-spacing: 1.75px;
-    text-transform: uppercase;
-    display: block;
-    margin-bottom: 7px;
-  }
-
-  select,
-  input {
-    width: 100%;
-    background: var(--np-black);
-    border: 1px solid #2a2a2a;
-    color: var(--np-white);
-    font-family: var(--font-mono);
-    font-size: 17.5px;
-    padding: 12.25px 17.5px;
-  }
-}
-
-.np-booking-btn {
-  width: 100%;
-  background: var(--np-accent);
-  color: var(--np-black);
-  font-family: var(--font-mono);
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 3.5px;
-  text-transform: uppercase;
-  padding: 17.5px;
-  border: none;
-  cursor: pointer;
-  margin-top: 17.5px;
-  transition: opacity 0.3s ease;
-
-  &:hover {
-    opacity: 0.8;
-  }
-}
-
-/* booking componets */
-/* src/styles/_components.scss */
-
-// Estilos para la sección de reserva
-.np-section {
-  padding: 49px 42px;
-  border-bottom: 1px solid var(--np-surface);
-}
-
-.np-section-title {
-  font-size: 19px;
-  letter-spacing: 3.5px;
-  color: var(--np-gray);
-  text-transform: uppercase;
-  margin-bottom: 21px;
-  span {
-    color: var(--np-accent);
-    margin-right: 10.5px;
-  }
-}
-
-.np-booking {
-  background: var(--np-surface);
-  border: 1px solid #222;
-  padding: 28px;
-}
-
-.np-booking-title {
-  font-size: 17.5px;
-  letter-spacing: 3.5px;
-  color: var(--np-accent);
-  text-transform: uppercase;
-  margin-bottom: 21px;
-}
-
-.np-booking-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
-
-.np-field {
-  label {
-    font-size: 14px;
-    color: var(--np-gray);
-    letter-spacing: 1.75px;
-    text-transform: uppercase;
-    display: block;
-    margin-bottom: 7px;
-  }
-
-  select,
-  input {
-    width: 100%;
-    background: var(--np-black);
-    border: 1px solid #2a2a2a;
-    color: var(--np-white);
-    font-family: var(--font-mono);
-    font-size: 17.5px;
-    padding: 12.25px 17.5px;
-  }
-}
-
-.np-booking-btn {
-  width: 100%;
-  background: var(--np-accent);
-  color: var(--np-black);
-  font-family: var(--font-mono);
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 3.5px;
-  text-transform: uppercase;
-  padding: 17.5px;
-  border: none;
-  cursor: pointer;
-  margin-top: 17.5px;
-  transition: opacity 0.3s ease;
-
-  &:hover {
-    opacity: 0.8;
-  }
-}
-
-/* --- Estilos para el ChatComponent --- */
 .chat-section {
   padding: 49px 42px;
   border-bottom: 1px solid #1a1a1a;
@@ -209,15 +297,10 @@
 }
 
 .agent-avatar {
+  @extend %accent-circle-icon;
   width: 40px;
   height: 40px;
-  background: var(--np-accent);
-  color: var(--np-black);
-  font-weight: 700;
   font-size: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   flex-shrink: 0;
 }
 
@@ -237,12 +320,17 @@
   margin-top: 2px;
 }
 
-.online-dot {
+// Punto de estado (online-dot) y puntos de typing-indicator comparten tamaño
+.online-dot,
+.typing-indicator span {
+  display: inline-block;
   width: 7px;
   height: 7px;
   border-radius: 50%;
+}
+
+.online-dot {
   background: var(--np-accent);
-  display: inline-block;
 }
 
 .resp-time {
@@ -292,6 +380,7 @@
   letter-spacing: 0.5px;
 }
 
+// El typing-indicator comparte look con .msg-studio
 .typing-indicator {
   display: none;
   align-self: flex-start;
@@ -307,13 +396,8 @@
   }
 
   span {
-    display: inline-block;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
     background: var(--np-gray);
     animation: blink 1.2s infinite;
-
     &:nth-child(2) {
       animation-delay: 0.2s;
     }
@@ -350,28 +434,8 @@
   padding: 16px 20px;
   outline: none;
   letter-spacing: 0.3px;
-
   &::placeholder {
     color: #444;
-  }
-}
-
-.chat-send {
-  background: var(--np-accent);
-  color: var(--np-black);
-  font-family: var(--font-mono);
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  padding: 16px 24px;
-  border: none;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: opacity 0.2s;
-
-  &:hover {
-    opacity: 0.85;
   }
 }
 
@@ -385,7 +449,10 @@
   }
 }
 
-/* --- Estilos para EventoDemoComponent --- */
+// ============================================================
+// EVENTO DEMO COMPONENT
+// ============================================================
+
 .demo-bar {
   background: #111;
   border-bottom: 1px solid #2a2a2a;
@@ -421,7 +488,6 @@
   cursor: pointer;
   letter-spacing: 1px;
   transition: all 0.15s;
-
   &:hover {
     border-color: var(--np-accent);
     color: var(--np-white);
@@ -442,7 +508,10 @@
   }
 }
 
-/* --- Estilos para FooterComponent --- */
+// ============================================================
+// FOOTER COMPONENT
+// ============================================================
+
 .np-footer {
   background: var(--np-black);
   padding: 48px 42px 32px;
@@ -474,19 +543,10 @@
   }
 }
 
-.np-footer-col-title {
-  font-size: 12px;
-  letter-spacing: 3px;
-  color: var(--np-accent);
-  text-transform: uppercase;
-  margin-bottom: 16px;
-}
-
 .np-footer-col {
   display: flex;
   flex-direction: column;
   gap: 0;
-
   a,
   span {
     display: block;
@@ -497,7 +557,6 @@
     text-decoration: none;
     transition: color 0.15s;
     letter-spacing: 0.5px;
-
     &:hover {
       color: var(--np-white);
     }
@@ -530,7 +589,10 @@
   }
 }
 
-/* --- Estilos para HeroComponent --- */
+// ============================================================
+// HERO COMPONENT
+// ============================================================
+
 .np-event-banner {
   width: 100%;
   padding: 10px 42px;
@@ -600,17 +662,30 @@
   transition: background 0.6s ease;
 }
 
-.np-hero-bg-text {
+// Texto de fondo decorativo (hero + about)
+%bg-watermark {
   position: absolute;
-  right: -17.5px;
-  top: 17.5px;
-  font-size: 158px;
-  font-weight: 900;
-  color: #ffffff06;
-  letter-spacing: -7px;
   pointer-events: none;
   line-height: 1;
   user-select: none;
+  font-weight: 900;
+}
+
+.np-hero-bg-text {
+  @extend %bg-watermark;
+  right: -17.5px;
+  top: 17.5px;
+  font-size: 158px;
+  color: #ffffff06;
+  letter-spacing: -7px;
+}
+
+.about-bg-text {
+  @extend %bg-watermark;
+  right: -10px;
+  top: 10px;
+  font-size: 200px;
+  color: rgba(255, 255, 255, 0.03);
 }
 
 .np-hero-eyebrow {
@@ -693,7 +768,10 @@ h1 {
   margin-top: 3.5px;
 }
 
-/* --- Estilos para NavbarComponent --- */
+// ============================================================
+// NAVBAR COMPONENT
+// ============================================================
+
 .np-nav {
   background: var(--np-black);
   border-bottom: 1px solid #222;
@@ -730,7 +808,6 @@ h1 {
 
 .np-nav-item {
   position: relative;
-
   a {
     display: flex;
     align-items: center;
@@ -744,7 +821,6 @@ h1 {
     transition: color 0.2s;
     cursor: pointer;
     white-space: nowrap;
-
     &:hover,
     &.active-link {
       color: var(--np-accent);
@@ -797,7 +873,6 @@ h1 {
   text-transform: uppercase;
   border-bottom: 1px solid #1a1a1a;
   transition: all 0.15s;
-
   &:last-child {
     border-bottom: none;
   }
@@ -805,23 +880,6 @@ h1 {
     background: #1a1a1a;
     color: var(--np-accent);
     padding-left: 28px;
-  }
-}
-
-.np-cta-btn {
-  background: var(--np-accent);
-  color: var(--np-black);
-  font-family: var(--font-mono);
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  padding: 9px 22px;
-  text-decoration: none;
-  transition: opacity 0.2s;
-  white-space: nowrap;
-  &:hover {
-    opacity: 0.85;
   }
 }
 
@@ -843,7 +901,10 @@ h1 {
   }
 }
 
-/* --- Estilos para RadialMenuComponent --- */
+// ============================================================
+// RADIAL MENU COMPONENT
+// ============================================================
+
 .radial-trigger {
   position: fixed;
   bottom: 36px;
@@ -877,7 +938,6 @@ h1 {
     box-shadow: 0 0 20px 4px
       color-mix(in srgb, var(--np-accent) 40%, transparent);
   }
-
   &.open {
     background: #ff4d4d;
     color: #fff;
@@ -900,15 +960,6 @@ h1 {
   background: rgba(0, 0, 0, 0.55);
   backdrop-filter: blur(2px);
   animation: fadeIn 0.2s ease;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
 }
 
 .radial-ring {
@@ -952,7 +1003,6 @@ h1 {
     opacity: 1;
     transform: translate(var(--x), var(--y)) scale(1);
   }
-
   &:hover {
     background: var(--np-accent);
     color: var(--np-black);
@@ -978,28 +1028,15 @@ h1 {
   animation: fadeIn 0.15s ease;
 }
 
-/* --- Estilos para RoomsComponent --- */
-.np-section {
-  padding: 49px 42px;
-  border-bottom: 1px solid #1a1a1a;
-}
+// ============================================================
+// ROOMS COMPONENT
+// ============================================================
 
 .np-section-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
   margin-bottom: 28px;
-}
-
-.np-section-title {
-  font-size: 19px;
-  letter-spacing: 3.5px;
-  color: var(--np-gray);
-  text-transform: uppercase;
-  span {
-    color: var(--np-accent);
-    margin-right: 10.5px;
-  }
 }
 
 .np-section-link {
@@ -1011,7 +1048,7 @@ h1 {
 
 .np-rooms-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 14px;
 }
 
@@ -1021,10 +1058,7 @@ h1 {
   padding: 24.5px;
   cursor: pointer;
   transition: border-color 0.2s;
-
-  &:hover {
-    border-color: var(--np-accent);
-  }
+  &:hover,
   &.featured {
     border-color: var(--np-accent);
   }
@@ -1033,24 +1067,8 @@ h1 {
 .np-room-badge {
   font-size: 14px;
   letter-spacing: 1.75px;
-  text-transform: uppercase;
   padding: 3.5px 10.5px;
   margin-bottom: 14px;
-  display: inline-block;
-
-  &.badge-popular {
-    background: var(--np-accent);
-    color: var(--np-black);
-  }
-  &.badge-pro {
-    background: var(--np-accent2);
-    color: #fff;
-  }
-  &.badge-std {
-    background: #222;
-    color: var(--np-gray);
-    border: 1px solid #333;
-  }
 }
 
 .np-room-name {
@@ -1083,14 +1101,15 @@ h1 {
   font-size: 14px;
   color: var(--np-gray);
   letter-spacing: 0.8px;
-
   &::before {
     content: "→ ";
     color: var(--np-accent);
   }
 }
 
-/* --- Estilos para SeasonalThemeComponent --- */
+// ============================================================
+// SEASONAL THEME COMPONENT
+// ============================================================
 
 .banner-msg {
   display: inline-block;
@@ -1108,15 +1127,6 @@ h1 {
   cursor: pointer;
   color: #000;
   line-height: 1;
-}
-
-@keyframes slideDown {
-  from {
-    transform: translateY(-100%);
-  }
-  to {
-    transform: translateY(0);
-  }
 }
 
 .particles-layer {
@@ -1152,11 +1162,9 @@ h1 {
   }
 }
 
-/* --- Estilos para TabsComponent --- */
-.np-section {
-  padding: 49px 42px;
-  border-bottom: 1px solid #1a1a1a;
-}
+// ============================================================
+// TABS COMPONENT
+// ============================================================
 
 .np-tabs {
   display: flex;
@@ -1174,7 +1182,6 @@ h1 {
   color: var(--np-gray);
   border-bottom: 2px solid transparent;
   transition: all 0.2s;
-
   &.active {
     color: var(--np-accent);
     border-bottom-color: var(--np-accent);
@@ -1225,7 +1232,6 @@ h1 {
   justify-content: space-between;
   padding: 10.5px 0;
   border-bottom: 1px solid #1e1e1e;
-
   &.accent {
     color: var(--np-accent);
     border-bottom: none;
@@ -1251,19 +1257,9 @@ h1 {
   color: var(--np-accent);
 }
 
-/* --- Estilos para ContactoComponent --- */
-.np-breadcrumb {
-  padding: 14px 42px;
-  font-size: 13px;
-  color: var(--np-gray);
-  border-bottom: 1px solid #1a1a1a;
-  display: flex;
-  gap: 8px;
-  a {
-    color: var(--np-accent);
-    text-decoration: none;
-  }
-}
+// ============================================================
+// CONTACTO COMPONENT
+// ============================================================
 
 .contacto-container {
   padding: 48px 42px;
@@ -1320,73 +1316,20 @@ h1 {
   gap: 16px;
 }
 
-.np-field {
-  label {
-    display: block;
-    font-size: 12px;
-    color: var(--np-gray);
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    margin-bottom: 6px;
-  }
-  input,
-  select,
-  textarea {
-    width: 100%;
-    background: #0f0f0f;
-    border: 1px solid #2a2a2a;
-    color: var(--np-white);
-    font-family: var(--font-mono);
-    font-size: 15px;
-    padding: 11px 16px;
-    transition: border-color 0.2s;
-    &:focus {
-      outline: none;
-      border-color: var(--np-accent);
-    }
-  }
-  textarea {
-    resize: vertical;
-  }
-}
-
-.submit-btn {
-  background: var(--np-accent);
-  color: var(--np-black);
-  font-family: var(--font-mono);
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  padding: 14px 28px;
-  border: none;
-  cursor: pointer;
-  align-self: flex-start;
-  transition: opacity 0.2s;
-  &:disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
-  }
-  &:not(:disabled):hover {
-    opacity: 0.85;
-  }
+// Estado de éxito compartido (enviado-ok + confirmacion)
+%success-state {
+  text-align: center;
+  animation: fadeIn 0.3s ease;
 }
 
 .enviado-ok {
-  text-align: center;
+  @extend %success-state;
   padding: 48px 20px;
-  animation: fadeIn 0.3s ease;
   .ok-icon {
+    @extend %accent-circle-icon;
     width: 56px;
     height: 56px;
-    background: var(--np-accent);
-    color: var(--np-black);
-    border-radius: 50%;
     font-size: 24px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     margin: 0 auto 16px;
   }
   h3 {
@@ -1412,17 +1355,6 @@ h1 {
     padding: 10px 20px;
     cursor: pointer;
     letter-spacing: 1px;
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
   }
 }
 
@@ -1529,45 +1461,15 @@ a.info-val {
   }
 }
 
-/* --- Estilos para NosotrosComponent --- */
-.np-breadcrumb {
-  padding: 14px 42px;
-  font-size: 13px;
-  color: var(--np-gray);
-  border-bottom: 1px solid #1a1a1a;
-  display: flex;
-  gap: 8px;
-  a {
-    color: var(--np-accent);
-    text-decoration: none;
-  }
-}
+// ============================================================
+// NOSOTROS COMPONENT
+// ============================================================
 
 .about-hero {
   padding: 80px 42px 60px;
   border-bottom: 1px solid #1a1a1a;
   position: relative;
   overflow: hidden;
-}
-
-.about-bg-text {
-  position: absolute;
-  right: -10px;
-  top: 10px;
-  font-size: 200px;
-  font-weight: 900;
-  color: rgba(255, 255, 255, 0.03);
-  pointer-events: none;
-  line-height: 1;
-  user-select: none;
-}
-
-.about-eyebrow {
-  font-size: 13px;
-  letter-spacing: 4px;
-  color: var(--np-accent);
-  text-transform: uppercase;
-  margin-bottom: 20px;
 }
 
 .about-hero h1 {
@@ -1592,14 +1494,6 @@ a.info-val {
 .team-section {
   padding: 56px 42px;
   border-bottom: 1px solid #1a1a1a;
-}
-
-.section-label {
-  font-size: 13px;
-  letter-spacing: 3px;
-  color: var(--np-accent);
-  text-transform: uppercase;
-  margin-bottom: 32px;
 }
 
 .values-grid,
@@ -1722,22 +1616,6 @@ a.info-val {
   font-weight: 700;
 }
 
-.cta-btn {
-  background: var(--np-accent);
-  color: var(--np-black);
-  font-family: var(--font-mono);
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  padding: 16px 32px;
-  text-decoration: none;
-  transition: opacity 0.2s;
-  &:hover {
-    opacity: 0.85;
-  }
-}
-
 @media (max-width: 900px) {
   .values-grid,
   .team-grid {
@@ -1756,22 +1634,9 @@ a.info-val {
   }
 }
 
-/* --- Estilos para ReservasComponent --- */
-.np-breadcrumb {
-  padding: 14px 42px;
-  font-size: 13px;
-  color: var(--np-gray);
-  border-bottom: 1px solid #1a1a1a;
-  display: flex;
-  gap: 8px;
-  a {
-    color: var(--np-accent);
-    text-decoration: none;
-  }
-  .sep {
-    color: #444;
-  }
-}
+// ============================================================
+// RESERVAS COMPONENT
+// ============================================================
 
 .reservas-container {
   max-width: 860px;
@@ -1860,17 +1725,6 @@ a.info-val {
   animation: fadeIn 0.25s ease;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
 .paso-title {
   font-size: 18px;
   color: var(--np-gray);
@@ -1901,28 +1755,6 @@ a.info-val {
   }
 }
 
-.sala-opt-badge {
-  font-size: 11px;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  padding: 2px 8px;
-  display: inline-block;
-  margin-bottom: 10px;
-  &.badge-popular {
-    background: var(--np-accent);
-    color: var(--np-black);
-  }
-  &.badge-pro {
-    background: var(--np-accent2);
-    color: #fff;
-  }
-  &.badge-std {
-    background: #222;
-    color: var(--np-gray);
-    border: 1px solid #333;
-  }
-}
-
 .sala-opt-name {
   font-size: 20px;
   font-weight: 700;
@@ -1950,46 +1782,6 @@ a.info-val {
   letter-spacing: 1px;
 }
 
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 24px;
-  .full {
-    grid-column: 1 / -1;
-  }
-}
-
-.np-field {
-  label {
-    display: block;
-    font-size: 12px;
-    color: var(--np-gray);
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    margin-bottom: 6px;
-  }
-  input,
-  select,
-  textarea {
-    width: 100%;
-    background: #0f0f0f;
-    border: 1px solid #2a2a2a;
-    color: var(--np-white);
-    font-family: var(--font-mono);
-    font-size: 16px;
-    padding: 11px 16px;
-    transition: border-color 0.2s;
-    &:focus {
-      outline: none;
-      border-color: var(--np-accent);
-    }
-  }
-  textarea {
-    resize: vertical;
-  }
-}
-
 .precio-preview {
   background: #0f0f0f;
   border: 1px solid #2a2a2a;
@@ -2010,46 +1802,6 @@ a.info-val {
 .paso-btns {
   display: flex;
   gap: 12px;
-}
-
-.btn-paso,
-.btn-confirmar {
-  background: var(--np-accent);
-  color: var(--np-black);
-  font-family: var(--font-mono);
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  padding: 14px 28px;
-  border: none;
-  cursor: pointer;
-  transition: opacity 0.2s;
-  &:disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
-  }
-  &:not(:disabled):hover {
-    opacity: 0.85;
-  }
-}
-.btn-confirmar {
-  padding: 14px 32px;
-}
-
-.btn-back {
-  background: transparent;
-  border: 1px solid #333;
-  color: var(--np-gray);
-  font-family: var(--font-mono);
-  font-size: 14px;
-  padding: 14px 22px;
-  cursor: pointer;
-  letter-spacing: 1px;
-  &:hover {
-    border-color: #666;
-    color: var(--np-white);
-  }
 }
 
 .resumen-box {
@@ -2092,20 +1844,14 @@ a.info-val {
 }
 
 .confirmacion {
-  text-align: center;
+  @extend %success-state;
   padding: 60px 0;
-  animation: fadeIn 0.4s ease;
+  animation-duration: 0.4s;
   .conf-icon {
+    @extend %accent-circle-icon;
     width: 64px;
     height: 64px;
-    background: var(--np-accent);
-    color: var(--np-black);
-    border-radius: 50%;
     font-size: 28px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     margin: 0 auto 20px;
   }
   h2 {
