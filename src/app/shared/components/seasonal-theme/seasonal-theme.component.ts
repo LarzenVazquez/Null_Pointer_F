@@ -10,7 +10,7 @@ import { NgIf, NgFor, isPlatformBrowser } from '@angular/common';
 import {
   EventoCalendarioService,
   EventoCalendario,
-} from '../../services/evento-calendario.service';
+} from '@services/evento-calendario.service';
 
 interface Particle {
   id: number;

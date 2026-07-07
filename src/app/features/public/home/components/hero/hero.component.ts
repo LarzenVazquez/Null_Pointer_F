@@ -4,7 +4,7 @@ import { NgIf } from '@angular/common';
 import {
   EventoCalendarioService,
   EventoCalendario,
-} from '../../services/evento-calendario.service';
+} from '@services/evento-calendario.service';
 
 @Component({
   selector: 'app-hero',

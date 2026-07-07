@@ -1,10 +1,9 @@
 import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { NavbarComponent } from './components/navbar/navbar.component';
-import { FooterComponent } from './components/footer/footer.component';
-import { SeasonalThemeComponent } from './components/seasonal-theme/seasonal-theme.component';
-import { EventoCalendarioService } from './services/evento-calendario.service';
-
+import { NavbarComponent } from '@layouts/public-layout/components/navbar/navbar.component';
+import { FooterComponent } from '@layouts/public-layout/components/footer/footer.component';
+import { SeasonalThemeComponent } from '@shared/components/seasonal-theme/seasonal-theme.component';
+import { EventoCalendarioService } from '@services/evento-calendario.service';
 @Component({
   selector: 'app-root',
   standalone: true,

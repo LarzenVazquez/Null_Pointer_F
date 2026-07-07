@@ -4,27 +4,37 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () =>
-      import('./pages/home/home.component').then(m => m.HomeComponent),
+      import('@features/public/home/home.component').then(
+        (m) => m.HomeComponent,
+      ),
   },
   {
     path: 'salas',
     loadComponent: () =>
-      import('./pages/salas/salas.component').then(m => m.SalasComponent),
+      import('@features/public/salas/salas.component').then(
+        (m) => m.SalasComponent,
+      ),
   },
   {
     path: 'reservas',
     loadComponent: () =>
-      import('./pages/reservas/reservas.component').then(m => m.ReservasComponent),
+      import('@features/public/reservas/reservas.component').then(
+        (m) => m.ReservasComponent,
+      ),
   },
   {
     path: 'nosotros',
     loadComponent: () =>
-      import('./pages/nosotros/nosotros.component').then(m => m.NosotrosComponent),
+      import('@features/public/nosotros/nosotros.component').then(
+        (m) => m.NosotrosComponent,
+      ),
   },
   {
     path: 'contacto',
     loadComponent: () =>
-      import('./pages/contacto/contacto.component').then(m => m.ContactoComponent),
+      import('@features/public/contacto/contacto.component').then(
+        (m) => m.ContactoComponent,
+      ),
   },
   { path: '**', redirectTo: '' },
 ];

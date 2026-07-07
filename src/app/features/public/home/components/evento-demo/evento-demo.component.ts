@@ -5,7 +5,7 @@ import {
   EventoCalendarioService,
   EventoCalendario,
   EventoTipo,
-} from '../../services/evento-calendario.service';
+} from '@services/evento-calendario.service';
 
 interface FechaDemo {
   label: string;

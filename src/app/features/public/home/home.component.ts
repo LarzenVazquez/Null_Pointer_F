@@ -1,15 +1,22 @@
 import { Component } from '@angular/core';
-import { HeroComponent } from '../../components/hero/hero.component';
-import { RoomsComponent } from '../../components/rooms/rooms.component';
-import { BookingComponent } from '../../components/booking/booking.component';
-import { TabsComponent } from '../../components/tabs/tabs.component';
-import { ChatComponent } from '../../components/chat/chat.component';
-import { EventoDemoComponent } from '../../components/evento-demo/evento-demo.component';
+import { HeroComponent } from './components/hero/hero.component';
+import { RoomsComponent } from './components/rooms/rooms.component';
+import { BookingComponent } from './components/booking/booking.component';
+import { TabsComponent } from './components/tabs/tabs.component';
+import { ChatComponent } from './components/chat/chat.component';
+import { EventoDemoComponent } from './components/evento-demo/evento-demo.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [HeroComponent, RoomsComponent, BookingComponent, TabsComponent, ChatComponent, EventoDemoComponent],
+  imports: [
+    HeroComponent,
+    RoomsComponent,
+    BookingComponent,
+    TabsComponent,
+    ChatComponent,
+    EventoDemoComponent,
+  ],
   template: `
     <!-- Banner de evento calendarizado (P6) -->
     <app-evento-demo />

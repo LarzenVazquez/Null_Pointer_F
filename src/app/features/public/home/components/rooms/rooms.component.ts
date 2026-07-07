@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { NgFor } from '@angular/common';
-import { Room } from '../../models/room.model';
+import { Room } from '@models/room.model';
 
 @Component({
   selector: 'app-rooms',

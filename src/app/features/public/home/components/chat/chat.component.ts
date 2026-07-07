@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { NgFor, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ChatService, ChatMessage } from '../../services/chat.service';
+import { ChatService, ChatMessage } from '@services/chat.service';
 
 @Component({
   selector: 'app-chat',
