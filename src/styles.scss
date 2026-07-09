@@ -7,6 +7,9 @@
 /* 3. Componentes */
 @use "components";
 
+/* 3b. Paneles (usuario / admin) */
+@use "panel";
+
 /* 4. Temas dinámicos (esto permite que los estilos globales consuman las variables inyectadas por el servicio) */
 :root {
   --np-accent: #c8ff00; /* Valor por defecto */

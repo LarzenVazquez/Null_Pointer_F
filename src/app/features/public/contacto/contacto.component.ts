@@ -1,7 +1,8 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgIf } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { MensajesService } from '@core/services/mensajes.service';
 
 @Component({
   selector: 'app-contacto',
@@ -156,11 +157,20 @@ import { RouterLink } from '@angular/router';
   `,
 })
 export class ContactoComponent {
+  private mensajesService = inject(MensajesService);
+
   enviado = signal(false);
   form = { nombre: '', email: '', asunto: '', mensaje: '' };
 
   enviar(): void {
     if (!this.form.nombre || !this.form.email || !this.form.mensaje) return;
+    this.mensajesService.enviarMensaje({
+      nombre: this.form.nombre,
+      email: this.form.email,
+      asunto: this.form.asunto || 'Sin asunto',
+      mensaje: this.form.mensaje,
+      origen: 'contacto',
+    });
     this.enviado.set(true);
   }
 

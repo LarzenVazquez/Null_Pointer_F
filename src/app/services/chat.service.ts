@@ -25,6 +25,12 @@ export class ChatService {
       'Estamos en Queretaro, Qro. Escribenos al chat y te mandamos la direccion exacta.',
     contacto:
       'Puedes escribirnos aqui mismo o al correo contacto@nullpointer.mx. Tambien estamos en Instagram.',
+    grabacion:
+      'Ofrecemos grabacion de audio profesional desde $350 MXN/h, con ingeniero y microfonia incluidos. Agregala a tu reserva desde tu panel de usuario.',
+    mastering:
+      'El mastering cuesta $450 MXN por pista, incluye hasta 2 rondas de revision y entrega en WAV 24-bit. Puedes agregarlo al reservar tu sala.',
+    master:
+      'Entregamos tus masters en WAV 24-bit/48kHz por pista desde $80 MXN c/u, con enlace de descarga privado. Mira mas detalles en la seccion Servicios.',
   };
 
   private fallbacks: string[] = [

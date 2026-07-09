@@ -147,6 +147,20 @@ export class EventoCalendarioService {
     this._today.set(new Date());
   }
 
+  /** Usado por el panel de Admin: lista todos los temas estacionales configurados. */
+  getTodosLosEventos(): EventoCalendario[] {
+    return (Object.keys(this.eventos) as EventoTipo[])
+      .filter((k) => k !== 'default')
+      .map((k) => this.eventos[k]);
+  }
+
+  /** Usado por el panel de Admin: simula la fecha de inicio de un evento para previsualizarlo. */
+  previewEvento(tipo: EventoTipo): void {
+    const ev = this.eventos[tipo];
+    if (!ev) return;
+    this._today.set(new Date(new Date().getFullYear(), ev.startMonth - 1, ev.startDay));
+  }
+
   // ── API imperativa (usada en HeroComponent y EventoDemoComponent) ─────────
 
   /**

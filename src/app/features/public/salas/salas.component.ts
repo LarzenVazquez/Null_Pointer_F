@@ -1,20 +1,9 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { NgFor, NgClass, NgIf } from '@angular/common';
-import { RouterLink } from '@angular/router';
-
-interface Sala {
-  id: string;
-  name: string;
-  precio: number;
-  capacidad: number;
-  m2: number;
-  badge: 'popular' | 'pro' | 'std';
-  badgeLabel: string;
-  featured: boolean;
-  descripcion: string;
-  equipo: string[];
-  imagen: string;
-}
+import { Router, RouterLink } from '@angular/router';
+import { SalasService } from '@core/services/salas.service';
+import { AuthService } from '@core/services/auth.service';
+import { FavoritosService } from '@core/services/favoritos.service';
 
 @Component({
   selector: 'app-salas',
@@ -79,6 +68,12 @@ interface Sala {
             <!-- Imagen/Placeholder visual de sala -->
             <div class="sala-img" [class]="'sala-img-' + sala.id.toLowerCase()">
               <span class="sala-img-label">{{ sala.name }}</span>
+              <button
+                class="fav-btn"
+                [class.active]="esFavorito(sala.id)"
+                (click)="toggleFavorito(sala.id)"
+                [title]="esFavorito(sala.id) ? 'Quitar de favoritos' : 'Guardar en favoritos'"
+              >★</button>
             </div>
 
             <div class="sala-body">
@@ -292,6 +287,22 @@ interface Sala {
       line-height: 1;
     }
 
+    .fav-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 2;
+      width: 34px;
+      height: 34px;
+      background: rgba(10,10,10,0.7);
+      border: 1px solid #333;
+      color: #555;
+      font-size: 15px;
+      cursor: pointer;
+      &:hover { color: var(--np-accent); border-color: var(--np-accent); }
+      &.active { color: var(--np-accent); border-color: var(--np-accent); }
+    }
+
     .sala-body { padding: 24px 28px; }
 
     .sala-badge-row {
@@ -398,35 +409,32 @@ interface Sala {
   `],
 })
 export class SalasComponent {
+  private salasService = inject(SalasService);
+  private auth = inject(AuthService);
+  private favoritosService = inject(FavoritosService);
+  private router = inject(Router);
+
   budgets = [9999, 150, 110, 80];
   capacidades = [0, 6, 4, 3];
 
   filtroPresupuesto = signal<number>(9999);
   filtroCapacidad   = signal<number>(0);
 
-  salas: Sala[] = [
-    {
-      id: 'A', name: 'Sala A', precio: 150, capacidad: 6, m2: 40,
-      badge: 'popular', badgeLabel: 'Más popular', featured: true,
-      descripcion: 'Nuestra sala premium con cabina de control independiente. Ideal para bandas completas y sesiones de grabacion de alta exigencia.',
-      equipo: ['Bateria Pearl Export Pro + Zildjian A', 'Monitoreo independiente por zona', 'Cabina de control', 'Marshall DSL40CR + Ampeg BA-210'],
-      imagen: 'A',
-    },
-    {
-      id: 'B', name: 'Sala B', precio: 110, capacidad: 4, m2: 28,
-      badge: 'pro', badgeLabel: 'PRO', featured: false,
-      descripcion: 'Sala profesional con mesa de mezcla digital de 32 canales. Perfecta para bandas de 4 elementos que buscan sonido de estudio.',
-      equipo: ['Bateria Mapex Saturn', 'Mesa Behringer X32 (32ch)', 'PA JBL profesional', 'Amplificadores Marshall + Ampeg'],
-      imagen: 'B',
-    },
-    {
-      id: 'C', name: 'Sala C', precio: 80, capacidad: 3, m2: 18,
-      badge: 'std', badgeLabel: 'STD', featured: false,
-      descripcion: 'Sala estandar ideal para trios, duos o solistas. El mejor costo-beneficio para ensayos regulares.',
-      equipo: ['Bateria Pearl Roadshow', 'Amplificadores basicos', 'Monitor de retorno', 'Ideal para grupos de hasta 3'],
-      imagen: 'C',
-    },
-  ];
+  salas = this.salasService.getSalas();
+
+  esFavorito(salaId: string): boolean {
+    const usuarioId = this.auth.currentUser()?.id;
+    return usuarioId ? this.favoritosService.esFavorito(usuarioId, salaId) : false;
+  }
+
+  toggleFavorito(salaId: string): void {
+    const usuarioId = this.auth.currentUser()?.id;
+    if (!usuarioId) {
+      this.router.navigate(['/auth/login'], { queryParams: { redirect: '/salas' } });
+      return;
+    }
+    this.favoritosService.toggleFavorito(usuarioId, salaId);
+  }
 
   salasFiltradas = () => this.salas.filter(s => {
     const okBudget = this.filtroPresupuesto() >= s.precio;
