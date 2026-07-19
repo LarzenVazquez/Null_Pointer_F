@@ -127,7 +127,7 @@ export const routes: Routes = [
   },
   {
     path: 'admin',
-    canActivate: [authGuard, roleGuard('admin')],
+    canActivate: [authGuard, roleGuard('Administrador', 'Editor')],
     loadComponent: () =>
       import('@layouts/admin-layout/admin-layout.component').then(
         (m) => m.AdminLayoutComponent,
@@ -156,6 +156,7 @@ export const routes: Routes = [
       },
       {
         path: 'usuarios',
+        canActivate: [roleGuard('Administrador')],
         loadComponent: () =>
           import('@features/admin/usuarios/usuarios.component').then(
             (m) => m.AdminUsuariosComponent,
@@ -163,6 +164,7 @@ export const routes: Routes = [
       },
       {
         path: 'mensajes',
+        canActivate: [roleGuard('Administrador')],
         loadComponent: () =>
           import('@features/admin/mensajes/mensajes.component').then(
             (m) => m.AdminMensajesComponent,
@@ -170,6 +172,7 @@ export const routes: Routes = [
       },
       {
         path: 'eventos',
+        canActivate: [roleGuard('Administrador')],
         loadComponent: () =>
           import('@features/admin/eventos/eventos.component').then(
             (m) => m.AdminEventosComponent,
@@ -177,6 +180,7 @@ export const routes: Routes = [
       },
       {
         path: 'reportes',
+        canActivate: [roleGuard('Administrador')],
         loadComponent: () =>
           import('@features/admin/reportes/reportes.component').then(
             (m) => m.AdminReportesComponent,

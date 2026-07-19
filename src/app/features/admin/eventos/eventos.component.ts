@@ -29,7 +29,7 @@ import { EventoCalendarioService, EventoTipo } from '@services/evento-calendario
     </div>
 
     <div class="eventos-grid">
-      <div class="evento-card" *ngFor="let ev of eventos">
+      <div class="evento-card" *ngFor="let ev of eventos()">
         <div class="evento-emoji-lg">{{ ev.emoji }}</div>
         <div class="evento-card-nombre">{{ ev.nombre }}</div>
         <div class="evento-fechas">
@@ -75,7 +75,8 @@ import { EventoCalendarioService, EventoTipo } from '@services/evento-calendario
 export class AdminEventosComponent {
   eventoService = inject(EventoCalendarioService);
 
-  eventos = this.eventoService.getTodosLosEventos();
+  // Signal reactivo (se carga de forma asíncrona desde /api/eventos).
+  eventos = this.eventoService.eventosDisponibles;
 
   previsualizar(tipo: EventoTipo): void {
     this.eventoService.previewEvento(tipo);

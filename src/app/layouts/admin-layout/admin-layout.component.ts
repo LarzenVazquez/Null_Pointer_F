@@ -1,17 +1,18 @@
 import { Component, inject } from '@angular/core';
+import { NgIf } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
 
 @Component({
   selector: 'app-admin-layout',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [NgIf, RouterLink, RouterLinkActive, RouterOutlet],
   template: `
     <div class="panel-layout">
       <aside class="panel-sidebar" aria-label="Navegación de administración">
         <div class="panel-user-box">
           <div class="panel-user-name">{{ auth.currentUser()?.nombre }}</div>
-          <div class="panel-user-role">Administrador</div>
+          <div class="panel-user-role">{{ auth.currentUser()?.rol }}</div>
         </div>
 
         <nav class="panel-nav">
@@ -24,18 +25,20 @@ import { AuthService } from '@core/services/auth.service';
           <a routerLink="/admin/salas" routerLinkActive="active" class="panel-nav-item">
             <span class="panel-nav-icon">▧</span> Salas
           </a>
-          <a routerLink="/admin/usuarios" routerLinkActive="active" class="panel-nav-item">
-            <span class="panel-nav-icon">☺</span> Usuarios
-          </a>
-          <a routerLink="/admin/mensajes" routerLinkActive="active" class="panel-nav-item">
-            <span class="panel-nav-icon">✉</span> Mensajes
-          </a>
-          <a routerLink="/admin/eventos" routerLinkActive="active" class="panel-nav-item">
-            <span class="panel-nav-icon">✦</span> Eventos
-          </a>
-          <a routerLink="/admin/reportes" routerLinkActive="active" class="panel-nav-item">
-            <span class="panel-nav-icon">≡</span> Reportes
-          </a>
+          <ng-container *ngIf="auth.isAdmin()">
+            <a routerLink="/admin/usuarios" routerLinkActive="active" class="panel-nav-item">
+              <span class="panel-nav-icon">☺</span> Usuarios
+            </a>
+            <a routerLink="/admin/mensajes" routerLinkActive="active" class="panel-nav-item">
+              <span class="panel-nav-icon">✉</span> Mensajes
+            </a>
+            <a routerLink="/admin/eventos" routerLinkActive="active" class="panel-nav-item">
+              <span class="panel-nav-icon">✦</span> Eventos
+            </a>
+            <a routerLink="/admin/reportes" routerLinkActive="active" class="panel-nav-item">
+              <span class="panel-nav-icon">≡</span> Reportes
+            </a>
+          </ng-container>
         </nav>
 
         <div class="panel-logout-item">

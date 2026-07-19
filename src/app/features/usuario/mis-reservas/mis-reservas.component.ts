@@ -129,7 +129,7 @@ export class MisReservasComponent {
 
   private reservas = computed<Reserva[]>(() => {
     this.refresh();
-    const usuarioId = this.auth.currentUser()?.id ?? '';
+    const usuarioId = String(this.auth.currentUser()?.id ?? '');
     return this.reservaService.getReservasDeUsuario(usuarioId);
   });
 

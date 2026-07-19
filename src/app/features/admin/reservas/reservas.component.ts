@@ -1,7 +1,8 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { NgFor, NgIf, NgClass } from '@angular/common';
 import { ReservaService } from '@core/services/reserva.service';
 import { AuthService } from '@core/services/auth.service';
+import { User } from '@models/user.model';
 import { EstadoReserva, Reserva } from '@models/reserva.model';
 
 type Filtro = 'todas' | EstadoReserva;
@@ -112,7 +113,7 @@ type Filtro = 'todas' | EstadoReserva;
     }
   `],
 })
-export class AdminReservasComponent {
+export class AdminReservasComponent implements OnInit {
   private reservaService = inject(ReservaService);
   private auth = inject(AuthService);
 
@@ -128,7 +129,11 @@ export class AdminReservasComponent {
     { value: 'cancelada', label: 'Canceladas' },
   ];
 
-  private usuarios = computed(() => this.auth.getAllUsers());
+  private usuarios = signal<User[]>([]);
+
+  ngOnInit(): void {
+    this.auth.getAllUsers().then((lista) => this.usuarios.set(lista));
+  }
 
   private reservas = computed<Reserva[]>(() => {
     this.refresh();
@@ -142,7 +147,10 @@ export class AdminReservasComponent {
   );
 
   nombreUsuario(usuarioId: string): string {
-    return this.usuarios().find((u) => u.id === usuarioId)?.nombre ?? 'Usuario eliminado';
+    return (
+      this.usuarios().find((u) => String(u.id) === usuarioId)?.nombre ??
+      'Usuario eliminado'
+    );
   }
 
   async cambiarEstado(reserva: Reserva, estado: EstadoReserva): Promise<void> {

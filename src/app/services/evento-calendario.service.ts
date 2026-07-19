@@ -1,5 +1,7 @@
 // src/app/services/evento-calendario.service.ts
-import { Injectable, signal, computed } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Injectable, inject, signal } from '@angular/core';
+import { environment } from '@environments/environment';
 
 export type EventoTipo =
   | 'default'
@@ -26,167 +28,120 @@ export interface EventoCalendario {
   endDay: number;
 }
 
+const EVENTO_DEFAULT: EventoCalendario = {
+  tipo: 'default',
+  nombre: '',
+  banner: '',
+  descripcion: 'Salas de ensayo profesionales con acústica de estudio.',
+  accentColor: '#C8FF00',
+  accent2: '#ff4d00',
+  bgColor: '#0a0a0a',
+  surfaceColor: '#1a1a1a',
+  emoji: '',
+  particles: [],
+  startMonth: 0,
+  startDay: 0,
+  endMonth: 0,
+  endDay: 0,
+};
+
+interface EventoActivoResponse {
+  ok: boolean;
+  fechaConsultada: string;
+  evento: EventoCalendario;
+}
+
+interface EventosListResponse {
+  ok: boolean;
+  eventos: EventoCalendario[];
+}
+
+/**
+ * Consume la API pública /api/eventos del backend (ver
+ * backend/src/services/eventos.service.ts). Reemplaza la versión anterior
+ * que tenía los temas hardcodeados en el cliente.
+ */
 @Injectable({ providedIn: 'root' })
 export class EventoCalendarioService {
-  private eventos: Record<EventoTipo, EventoCalendario> = {
-    navidad: {
-      tipo: 'navidad',
-      nombre: 'Navidad',
-      banner:
-        '🎄 Oferta Navideña — 20% off en ensayos del 20 al 31 de diciembre',
-      descripcion: 'Toca villancicos en nuestras salas esta temporada.',
-      accentColor: '#00C853',
-      accent2: '#ff0000',
-      bgColor: '#001a00',
-      surfaceColor: '#003300',
-      emoji: '🎄',
-      particles: ['🎄', '⭐', '🎅', '🦌', '🎁', '❄️'],
-      startMonth: 12,
-      startDay: 20,
-      endMonth: 12,
-      endDay: 31,
-    },
-    anio_nuevo: {
-      tipo: 'anio_nuevo',
-      nombre: 'Año Nuevo',
-      banner: '🥂 Año Nuevo — ¡Estrena el año tocando con tu banda!',
-      descripcion: 'Empieza el año con el pie derecho... y con tu instrumento.',
-      accentColor: '#FFD700',
-      accent2: '#ff8c00',
-      bgColor: '#1a1400',
-      surfaceColor: '#332800',
-      emoji: '🥂',
-      particles: ['🥂', '🎆', '🎇', '✨', '🎉'],
-      startMonth: 1,
-      startDay: 1,
-      endMonth: 1,
-      endDay: 5,
-    },
-    dia_muertos: {
-      tipo: 'dia_muertos',
-      nombre: 'Día de Muertos',
-      banner: '💀 Día de Muertos — Toca para los que ya no están',
-      descripcion: 'Honra a quienes te enseñaron a amar la música.',
-      accentColor: '#FF6B00',
-      accent2: '#ffcc00',
-      bgColor: '#1a0800',
-      surfaceColor: '#2d1200',
-      emoji: '💀',
-      particles: ['💀', '🌼', '🕯️', '🦋', '🌺'],
-      startMonth: 11,
-      startDay: 1,
-      endMonth: 11,
-      endDay: 2,
-    },
-    halloween: {
-      tipo: 'halloween',
-      nombre: 'Halloween',
-      banner: '🎃 Halloween — Ensaya de noche, suena de miedo',
-      descripcion: 'Las mejores sesiones ocurren en la oscuridad.',
-      accentColor: '#FF6600',
-      accent2: '#9b30ff',
-      bgColor: '#0d0500',
-      surfaceColor: '#1a0a00',
-      emoji: '🎃',
-      particles: ['🎃', '👻', '🕷️', '🦇', '💀'],
-      startMonth: 10,
-      startDay: 28,
-      endMonth: 10,
-      endDay: 31,
-    },
-    san_valentin: {
-      tipo: 'san_valentin',
-      nombre: 'San Valentín',
-      banner: '💖 San Valentín — Dedícale una canción a quien amas',
-      descripcion: 'La música es el mejor regalo. Reserva una sala para dos.',
-      accentColor: '#FF1A6E',
-      accent2: '#ff69b4',
-      bgColor: '#1a0010',
-      surfaceColor: '#2d0020',
-      emoji: '💖',
-      particles: ['💖', '🌹', '💝', '🎵', '💕'],
-      startMonth: 2,
-      startDay: 10,
-      endMonth: 2,
-      endDay: 14,
-    },
-    default: {
-      tipo: 'default',
-      nombre: '',
-      banner: '',
-      descripcion: 'Salas de ensayo profesionales con acústica de estudio.',
-      accentColor: '#C8FF00',
-      accent2: '#ff4d00',
-      bgColor: '#0a0a0a',
-      surfaceColor: '#1a1a1a',
-      emoji: '',
-      particles: [],
-      startMonth: 0,
-      startDay: 0,
-      endMonth: 0,
-      endDay: 0,
-    },
-  };
-
-  // ── Signal-based API (anteriormente en SeasonalThemeService) ──────────────
+  private http = inject(HttpClient);
+  private apiUrl = `${environment.apiUrl}/eventos`;
 
   private _today = signal(new Date());
+  private _eventoActivo = signal<EventoCalendario>(EVENTO_DEFAULT);
+  private _eventosDisponibles = signal<EventoCalendario[]>([]);
 
-  /** Evento activo reactivo; se actualiza cuando cambia _today. */
-  readonly activeEvent = computed<EventoCalendario>(() =>
-    this.getEventoActivo(this._today()),
-  );
+  /** Evento activo reactivo (se actualiza cada vez que cambia la fecha simulada). */
+  readonly activeEvent = this._eventoActivo.asReadonly();
 
-  /** Sobreescribe la fecha para pruebas (EventoDemoComponent). */
+  /** Lista de todos los temas configurados (para pintar la grilla del panel admin). */
+  readonly eventosDisponibles = this._eventosDisponibles.asReadonly();
+
+  constructor() {
+    this.cargarEventoActivo(this._today());
+    this.cargarListaEventos();
+  }
+
+  /** Sobreescribe la fecha para pruebas (barra "Simular fecha" / panel Admin). */
   setTestDate(date: Date): void {
     this._today.set(date);
+    this.cargarEventoActivo(date);
   }
 
   /** Restaura la fecha real del sistema. */
   resetDate(): void {
-    this._today.set(new Date());
+    this.setTestDate(new Date());
   }
 
-  /** Usado por el panel de Admin: lista todos los temas estacionales configurados. */
+  /** Último listado de eventos conocido (se carga una vez al iniciar el servicio). */
   getTodosLosEventos(): EventoCalendario[] {
-    return (Object.keys(this.eventos) as EventoTipo[])
-      .filter((k) => k !== 'default')
-      .map((k) => this.eventos[k]);
+    return this._eventosDisponibles();
   }
-
-  /** Usado por el panel de Admin: simula la fecha de inicio de un evento para previsualizarlo. */
-  previewEvento(tipo: EventoTipo): void {
-    const ev = this.eventos[tipo];
-    if (!ev) return;
-    this._today.set(new Date(new Date().getFullYear(), ev.startMonth - 1, ev.startDay));
-  }
-
-  // ── API imperativa (usada en HeroComponent y EventoDemoComponent) ─────────
 
   /**
-   * Retorna el EventoCalendario activo según la fecha dada (por defecto hoy).
+   * Usado por el panel de Admin: previsualiza un tema puntual pidiendo
+   * su definición completa al backend (GET /api/eventos/:tipo), sin tener
+   * que recalcular el rango de fechas en el cliente.
    */
-  getEventoActivo(fecha: Date = new Date()): EventoCalendario {
-    const mes = fecha.getMonth() + 1; // 1-12
-    const dia = fecha.getDate();
-
-    for (const key of Object.keys(this.eventos) as EventoTipo[]) {
-      if (key === 'default') continue;
-      const ev = this.eventos[key];
-      if (this._inRange(mes, dia, ev)) return ev;
-    }
-
-    return this.eventos['default'];
+  previewEvento(tipo: EventoTipo): void {
+    this.http.get<{ ok: boolean; evento: EventoCalendario }>(
+      `${this.apiUrl}/${tipo}`,
+    ).subscribe({
+      next: (res) => this._eventoActivo.set(res.evento),
+      error: () => this._eventoActivo.set(EVENTO_DEFAULT),
+    });
   }
 
-  private _inRange(m: number, day: number, ev: EventoCalendario): boolean {
-    if (ev.startMonth === ev.endMonth) {
-      return m === ev.startMonth && day >= ev.startDay && day <= ev.endDay;
-    }
-    const afterStart =
-      m > ev.startMonth || (m === ev.startMonth && day >= ev.startDay);
-    const beforeEnd =
-      m < ev.endMonth || (m === ev.endMonth && day <= ev.endDay);
-    return afterStart && beforeEnd;
+  /**
+   * Devuelve el último evento activo conocido (valor cacheado del signal).
+   * La consulta real al backend es asíncrona: usa `activeEvent` en el
+   * template para reactividad, o `setTestDate()` para forzar una nueva
+   * consulta con otra fecha.
+   */
+  getEventoActivo(fecha: Date = new Date()): EventoCalendario {
+    return this._eventoActivo();
+  }
+
+  private cargarEventoActivo(fecha: Date): void {
+    const fechaStr = this.formatearFecha(fecha);
+    this.http
+      .get<EventoActivoResponse>(`${this.apiUrl}/activo?fecha=${fechaStr}`)
+      .subscribe({
+        next: (res) => this._eventoActivo.set(res.evento),
+        error: () => this._eventoActivo.set(EVENTO_DEFAULT),
+      });
+  }
+
+  private cargarListaEventos(): void {
+    this.http.get<EventosListResponse>(this.apiUrl).subscribe({
+      next: (res) => this._eventosDisponibles.set(res.eventos),
+      error: () => this._eventosDisponibles.set([]),
+    });
+  }
+
+  private formatearFecha(fecha: Date): string {
+    const y = fecha.getFullYear();
+    const m = String(fecha.getMonth() + 1).padStart(2, '0');
+    const d = String(fecha.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
   }
 }

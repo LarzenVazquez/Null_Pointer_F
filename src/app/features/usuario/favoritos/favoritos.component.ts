@@ -69,7 +69,7 @@ export class FavoritosComponent {
   private salasService = inject(SalasService);
   favoritosService = inject(FavoritosService);
 
-  private usuarioId = () => this.auth.currentUser()?.id ?? '';
+  private usuarioId = () => String(this.auth.currentUser()?.id ?? '');
   private salas = this.salasService.getSalas();
 
   favoritas = computed(() => {

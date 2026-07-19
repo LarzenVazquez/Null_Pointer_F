@@ -35,8 +35,11 @@ import { AuthService } from '@core/services/auth.service';
         </div>
 
         <div *ngIf="datosGuardados()" class="save-ok">✓ Datos actualizados</div>
+        <div *ngIf="error()" class="save-error">{{ error() }}</div>
 
-        <button type="submit" class="submit-btn" [disabled]="!nombre()">Guardar cambios</button>
+        <button type="submit" class="submit-btn" [disabled]="!nombre() || guardando()">
+          {{ guardando() ? 'Guardando...' : 'Guardar cambios' }}
+        </button>
       </form>
     </div>
 
@@ -49,6 +52,7 @@ import { AuthService } from '@core/services/auth.service';
   `,
   styles: [`
     .save-ok { color: var(--np-accent); font-size: 13px; margin: 4px 0 16px; }
+    .save-error { color: #ff4d4d; font-size: 13px; margin: 4px 0 16px; }
     input:disabled { opacity: 0.5; cursor: not-allowed; }
   `],
 })
@@ -58,11 +62,26 @@ export class PerfilComponent {
   nombre = signal(this.auth.currentUser()?.nombre ?? '');
   telefono = signal(this.auth.currentUser()?.telefono ?? '');
   datosGuardados = signal(false);
+  guardando = signal(false);
+  error = signal<string | null>(null);
 
-  guardarDatos(event: Event): void {
+  async guardarDatos(event: Event): Promise<void> {
     event.preventDefault();
-    this.auth.updateProfile({ nombre: this.nombre(), telefono: this.telefono() });
-    this.datosGuardados.set(true);
-    setTimeout(() => this.datosGuardados.set(false), 2500);
+    this.error.set(null);
+    this.guardando.set(true);
+    try {
+      await this.auth.updateProfile({
+        nombre: this.nombre(),
+        telefono: this.telefono(),
+      });
+      this.datosGuardados.set(true);
+      setTimeout(() => this.datosGuardados.set(false), 2500);
+    } catch (err) {
+      this.error.set(
+        err instanceof Error ? err.message : 'No se pudieron guardar los cambios.',
+      );
+    } finally {
+      this.guardando.set(false);
+    }
   }
 }

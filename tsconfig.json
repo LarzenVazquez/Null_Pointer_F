@@ -21,6 +21,9 @@
       ],
       "@layouts/*": [
         "./src/app/layouts/*"
+      ],
+      "@environments/*": [
+        "./src/environments/*"
       ]
     },
     "outDir": "./dist/out-tsc",

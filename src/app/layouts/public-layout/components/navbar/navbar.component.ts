@@ -69,7 +69,7 @@ interface NavItem {
           </button>
           <ul *ngIf="accountMenuOpen()" class="np-dropdown np-account-dropdown" role="menu">
             <li role="none">
-              <a [routerLink]="auth.isAdmin() ? '/admin' : '/usuario'" class="np-dropdown-item" role="menuitem">
+              <a [routerLink]="auth.hasAnyRole('Administrador', 'Editor') ? '/admin' : '/usuario'" class="np-dropdown-item" role="menuitem">
                 → Mi panel
               </a>
             </li>

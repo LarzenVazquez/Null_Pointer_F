@@ -348,7 +348,7 @@ export class NuevaReservaComponent {
     this.creando.set(true);
     try {
       await this.reservaService.crearReserva({
-        usuarioId,
+        usuarioId: String(usuarioId),
         salaId: this.salaId(),
         fecha: this.fecha(),
         hora: this.hora(),

@@ -1,10 +1,11 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { NgFor, NgIf } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ReservaService } from '@core/services/reserva.service';
 import { AuthService } from '@core/services/auth.service';
 import { MensajesService } from '@core/services/mensajes.service';
 import { SalasService } from '@core/services/salas.service';
+import { User } from '@models/user.model';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -95,7 +96,7 @@ import { SalasService } from '@core/services/salas.service';
     }
   `],
 })
-export class AdminDashboardComponent {
+export class AdminDashboardComponent implements OnInit {
   private reservaService = inject(ReservaService);
   private auth = inject(AuthService);
   private mensajesService = inject(MensajesService);
@@ -103,9 +104,13 @@ export class AdminDashboardComponent {
 
   private reservas = computed(() => this.reservaService.getAllReservas());
   reservasActivas = computed(() => this.reservas().filter((r) => r.estado !== 'cancelada'));
-  usuarios = computed(() => this.auth.getAllUsers());
+  usuarios = signal<User[]>([]);
   private mensajes = computed(() => this.mensajesService.getMensajes());
   mensajesNuevos = computed(() => this.mensajes().filter((m) => m.estado === 'nuevo'));
+
+  ngOnInit(): void {
+    this.auth.getAllUsers().then((lista) => this.usuarios.set(lista));
+  }
 
   ingresosTotales = computed(() =>
     this.reservasActivas().reduce((sum, r) => sum + r.precioTotal, 0),

@@ -138,7 +138,7 @@ export class SoporteComponent {
       asunto: this.asunto,
       mensaje: this.mensaje,
       origen: 'soporte',
-      usuarioId: user?.id,
+      usuarioId: user?.id !== undefined ? String(user.id) : undefined,
     });
     this.enviado.set(true);
     this.asunto = '';

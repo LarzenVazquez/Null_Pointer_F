@@ -1,9 +1,8 @@
 // src/app/components/evento-demo/evento-demo.component.ts
-import { Component, inject, signal } from '@angular/core';
-import { NgFor } from '@angular/common';
+import { Component, PLATFORM_ID, effect, inject, signal } from '@angular/core';
+import { NgFor, isPlatformBrowser } from '@angular/common';
 import {
   EventoCalendarioService,
-  EventoCalendario,
   EventoTipo,
 } from '@services/evento-calendario.service';
 
@@ -32,16 +31,16 @@ interface FechaDemo {
       </div>
       <span class="demo-current">
         Evento activo:
-        <strong>{{ eventoActivo().nombre || 'Sin evento' }}</strong>
-        {{ eventoActivo().emoji }}
+        <strong>{{ svc.activeEvent().nombre || 'Sin evento' }}</strong>
+        {{ svc.activeEvent().emoji }}
       </span>
     </div>
   `,
 })
 export class EventoDemoComponent {
-  private svc = inject(EventoCalendarioService);
+  svc = inject(EventoCalendarioService);
+  private isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
-  eventoActivo = signal<EventoCalendario>(this.svc.getEventoActivo());
   fechaActiva = signal<EventoTipo>('default');
 
   fechas: FechaDemo[] = [
@@ -73,13 +72,24 @@ export class EventoDemoComponent {
     },
   ];
 
+  constructor() {
+    // Cada vez que el backend confirma un nuevo evento activo, notifica
+    // al resto de la app (mismo evento custom que usaba la versión mock,
+    // por si algún componente externo lo escucha).
+    effect(() => {
+      const evento = this.svc.activeEvent();
+      if (!this.isBrowser) return;
+      document.dispatchEvent(
+        new CustomEvent('np:cambiar-evento', { detail: evento }),
+      );
+    });
+  }
+
   simular(f: FechaDemo): void {
     this.fechaActiva.set(f.tipo);
-    this.svc.setTestDate(f.fecha); // actualiza el signal reactivo
-    const evento = this.svc.getEventoActivo(f.fecha);
-    this.eventoActivo.set(evento);
-    document.dispatchEvent(
-      new CustomEvent('np:cambiar-evento', { detail: evento }),
-    );
+    // Dispara la consulta real a GET /api/eventos/activo?fecha=... — el
+    // resultado llega de forma asíncrona y actualiza svc.activeEvent(),
+    // que ya está enlazado reactivamente en el template.
+    this.svc.setTestDate(f.fecha);
   }
 }

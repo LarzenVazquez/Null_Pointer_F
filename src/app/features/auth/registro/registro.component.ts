@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { NgIf } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
+import { rutaInicioSegunRol } from '@core/guards/auth.guard';
 
 @Component({
   selector: 'app-registro',
@@ -65,7 +66,7 @@ import { AuthService } from '@core/services/auth.service';
             <input
               id="r-pass"
               type="password"
-              placeholder="Mínimo 6 caracteres"
+              placeholder="Mínimo 8 caracteres, con mayúscula, minúscula y número"
               autocomplete="new-password"
               [(ngModel)]="password"
               name="password"
@@ -199,8 +200,14 @@ export class RegistroComponent {
   );
 
   validationError = computed(() => {
-    if (this.password() && this.password().length < 6) {
-      return 'La contraseña debe tener al menos 6 caracteres.';
+    const pass = this.password();
+    if (pass) {
+      if (pass.length < 8) {
+        return 'La contraseña debe tener al menos 8 caracteres.';
+      }
+      if (!/[a-z]/.test(pass) || !/[A-Z]/.test(pass) || !/[0-9]/.test(pass)) {
+        return 'La contraseña debe incluir mayúsculas, minúsculas y números.';
+      }
     }
     if (this.confirmPassword() && this.password() !== this.confirmPassword()) {
       return 'Las contraseñas no coinciden.';
@@ -216,14 +223,14 @@ export class RegistroComponent {
 
     this.loading.set(true);
     try {
-      const { user } = await this.auth.register({
+      await this.auth.register({
         nombre: this.nombre(),
         email: this.email(),
         telefono: this.telefono() || undefined,
         password: this.password(),
       });
 
-      this.router.navigateByUrl(user.rol === 'admin' ? '/admin' : '/usuario');
+      this.router.navigateByUrl(rutaInicioSegunRol(this.auth));
     } catch (err) {
       this.error.set(err instanceof Error ? err.message : 'No se pudo crear la cuenta.');
     } finally {

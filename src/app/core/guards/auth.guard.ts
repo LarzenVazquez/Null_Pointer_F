@@ -19,20 +19,33 @@ export const authGuard: CanActivateFn = (_route, state) => {
 };
 
 /**
- * Protege rutas que requieren un rol específico (p.ej. 'admin').
- * Uso: canActivate: [authGuard, roleGuard('admin')]
+ * Protege rutas que requieren alguno de los roles indicados.
+ * Uso: canActivate: [authGuard, roleGuard('Administrador')]
+ *      canActivate: [authGuard, roleGuard('Administrador', 'Editor')]
+ *
+ * Este es un control de acceso "de cortesía" en el cliente (evita que la
+ * UI se muestre a quien no debería verla); el control real y no evadible
+ * lo hace el backend en cada endpoint protegido con requireRole/requirePermission.
  */
-export const roleGuard = (rolRequerido: UserRole): CanActivateFn => {
+export const roleGuard = (...rolesPermitidos: UserRole[]): CanActivateFn => {
   return () => {
     const auth = inject(AuthService);
     const router = inject(Router);
 
-    if (auth.isAuthenticated() && auth.hasRole(rolRequerido)) return true;
+    if (auth.isAuthenticated() && auth.hasAnyRole(...rolesPermitidos)) {
+      return true;
+    }
 
     router.navigate(['/']);
     return false;
   };
 };
+
+/** Calcula a dónde debe ir cada rol tras iniciar sesión / si intenta ver login estando ya autenticado. */
+export function rutaInicioSegunRol(auth: AuthService): string {
+  if (auth.hasAnyRole('Administrador', 'Editor')) return '/admin';
+  return '/usuario';
+}
 
 /**
  * Evita que un usuario ya autenticado vuelva a ver login/registro.
@@ -44,6 +57,6 @@ export const guestGuard: CanActivateFn = () => {
 
   if (!auth.isAuthenticated()) return true;
 
-  router.navigate([auth.isAdmin() ? '/admin' : '/usuario']);
+  router.navigate([rutaInicioSegunRol(auth)]);
   return false;
 };

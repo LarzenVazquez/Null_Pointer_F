@@ -1,12 +1,15 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { NgFor, NgIf, SlicePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { AuthService } from '@core/services/auth.service';
 import { User, UserRole } from '@models/user.model';
+
+const ROLES_DISPONIBLES: UserRole[] = ['Administrador', 'Editor', 'Usuario'];
 
 @Component({
   selector: 'app-admin-usuarios',
   standalone: true,
-  imports: [NgFor, NgIf, SlicePipe],
+  imports: [NgFor, NgIf, SlicePipe, FormsModule],
   template: `
     <div class="panel-header">
       <div>
@@ -14,6 +17,8 @@ import { User, UserRole } from '@models/user.model';
         <p class="panel-subtitle">{{ usuarios().length }} cuenta(s) registrada(s).</p>
       </div>
     </div>
+
+    <div *ngIf="error()" class="save-error">{{ error() }}</div>
 
     <div class="panel-card">
       <table class="panel-table">
@@ -34,19 +39,25 @@ import { User, UserRole } from '@models/user.model';
             <td>{{ u.telefono || '—' }}</td>
             <td>{{ u.fechaRegistro | slice: 0:10 }}</td>
             <td>
-              <span class="status-badge" [class.status-confirmada]="u.rol === 'admin'" [class.status-completada]="u.rol === 'usuario'">
+              <span
+                class="status-badge"
+                [class.status-confirmada]="u.rol === 'Administrador'"
+                [class.status-pendiente]="u.rol === 'Editor'"
+                [class.status-completada]="u.rol === 'Usuario'"
+              >
                 {{ u.rol }}
               </span>
             </td>
             <td>
-              <button
+              <select
                 class="mini-btn"
+                [ngModel]="u.rol"
                 [disabled]="cambiandoId() === u.id || esCuentaPropia(u)"
-                (click)="alternarRol(u)"
                 [title]="esCuentaPropia(u) ? 'No puedes cambiar tu propio rol' : ''"
+                (ngModelChange)="cambiarRol(u, $event)"
               >
-                {{ u.rol === 'admin' ? 'Quitar admin' : 'Hacer admin' }}
-              </button>
+                <option *ngFor="let r of rolesDisponibles" [value]="r">{{ r }}</option>
+              </select>
             </td>
           </tr>
         </tbody>
@@ -65,28 +76,53 @@ import { User, UserRole } from '@models/user.model';
       &:hover:not(:disabled) { border-color: var(--np-accent); color: var(--np-white); }
       &:disabled { opacity: 0.4; cursor: not-allowed; }
     }
+    .save-error { color: #ff4d4d; font-size: 13px; margin: 4px 0 16px; }
   `],
 })
-export class AdminUsuariosComponent {
+export class AdminUsuariosComponent implements OnInit {
   private auth = inject(AuthService);
 
-  private refresh = signal(0);
-  cambiandoId = signal<string | null>(null);
+  usuarios = signal<User[]>([]);
+  cambiandoId = signal<number | null>(null);
+  error = signal<string | null>(null);
+  rolesDisponibles = ROLES_DISPONIBLES;
 
-  usuarios = () => {
-    this.refresh();
-    return this.auth.getAllUsers();
-  };
+  ngOnInit(): void {
+    this.cargarUsuarios();
+  }
+
+  private async cargarUsuarios(): Promise<void> {
+    try {
+      const lista = await this.auth.getAllUsers();
+      this.usuarios.set(
+        lista.sort((a, b) => (a.fechaRegistro < b.fechaRegistro ? 1 : -1)),
+      );
+    } catch (err) {
+      this.error.set(
+        err instanceof Error ? err.message : 'No se pudo cargar la lista de usuarios.',
+      );
+    }
+  }
 
   esCuentaPropia(u: User): boolean {
     return this.auth.currentUser()?.id === u.id;
   }
 
-  alternarRol(u: User): void {
-    const nuevoRol: UserRole = u.rol === 'admin' ? 'usuario' : 'admin';
+  async cambiarRol(u: User, nuevoRol: UserRole): Promise<void> {
+    if (nuevoRol === u.rol) return;
+    this.error.set(null);
     this.cambiandoId.set(u.id);
-    this.auth.updateUserRole(u.id, nuevoRol);
-    this.cambiandoId.set(null);
-    this.refresh.update((v) => v + 1);
+    try {
+      const actualizado = await this.auth.updateUserRole(u.id, nuevoRol);
+      this.usuarios.update((lista) =>
+        lista.map((x) => (x.id === u.id ? actualizado : x)),
+      );
+    } catch (err) {
+      this.error.set(
+        err instanceof Error ? err.message : 'No se pudo cambiar el rol.',
+      );
+    } finally {
+      this.cambiandoId.set(null);
+    }
   }
 }

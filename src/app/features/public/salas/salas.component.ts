@@ -424,7 +424,7 @@ export class SalasComponent {
 
   esFavorito(salaId: string): boolean {
     const usuarioId = this.auth.currentUser()?.id;
-    return usuarioId ? this.favoritosService.esFavorito(usuarioId, salaId) : false;
+    return usuarioId ? this.favoritosService.esFavorito(String(usuarioId), salaId) : false;
   }
 
   toggleFavorito(salaId: string): void {
@@ -433,7 +433,7 @@ export class SalasComponent {
       this.router.navigate(['/auth/login'], { queryParams: { redirect: '/salas' } });
       return;
     }
-    this.favoritosService.toggleFavorito(usuarioId, salaId);
+    this.favoritosService.toggleFavorito(String(usuarioId), salaId);
   }
 
   salasFiltradas = () => this.salas.filter(s => {

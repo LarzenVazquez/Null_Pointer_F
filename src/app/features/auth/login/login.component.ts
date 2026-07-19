@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { NgIf } from '@angular/common';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
+import { rutaInicioSegunRol } from '@core/guards/auth.guard';
 
 @Component({
   selector: 'app-login',
@@ -158,13 +159,13 @@ export class LoginComponent {
     this.loading.set(true);
 
     try {
-      const { user } = await this.auth.login({
+      await this.auth.login({
         email: this.email(),
         password: this.password(),
       });
 
       const redirect = this.route.snapshot.queryParamMap.get('redirect');
-      const destino = redirect || (user.rol === 'admin' ? '/admin' : '/usuario');
+      const destino = redirect || rutaInicioSegunRol(this.auth);
       this.router.navigateByUrl(destino);
     } catch (err) {
       this.error.set(err instanceof Error ? err.message : 'No se pudo iniciar sesión.');

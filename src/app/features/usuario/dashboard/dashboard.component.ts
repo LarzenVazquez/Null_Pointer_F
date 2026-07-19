@@ -98,7 +98,7 @@ export class UsuarioDashboardComponent {
   private reservaService = inject(ReservaService);
   private favoritosService = inject(FavoritosService);
 
-  private usuarioId = () => this.auth.currentUser()?.id ?? '';
+  private usuarioId = () => String(this.auth.currentUser()?.id ?? '');
 
   reservas = computed(() => this.reservaService.getReservasDeUsuario(this.usuarioId()));
 
