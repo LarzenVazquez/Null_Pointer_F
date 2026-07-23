@@ -4,6 +4,7 @@ import { NgIf } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
 import { rutaInicioSegunRol } from '@core/guards/auth.guard';
+import { mensajeDeError } from '@core/utils/http-error.util';
 
 @Component({
   selector: 'app-registro',
@@ -232,7 +233,7 @@ export class RegistroComponent {
 
       this.router.navigateByUrl(rutaInicioSegunRol(this.auth));
     } catch (err) {
-      this.error.set(err instanceof Error ? err.message : 'No se pudo crear la cuenta.');
+      this.error.set(mensajeDeError(err, 'No se pudo crear la cuenta.'));
     } finally {
       this.loading.set(false);
     }

@@ -2,6 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgIf } from '@angular/common';
 import { AuthService } from '@core/services/auth.service';
+import { mensajeDeError } from '@core/utils/http-error.util';
 
 @Component({
   selector: 'app-perfil',
@@ -22,22 +23,42 @@ import { AuthService } from '@core/services/auth.service';
         <div class="form-grid">
           <div class="np-field">
             <label for="p-nombre">Nombre completo</label>
-            <input id="p-nombre" type="text" [(ngModel)]="nombre" name="nombre" />
+            <input
+              id="p-nombre"
+              type="text"
+              [(ngModel)]="nombre"
+              name="nombre"
+            />
           </div>
           <div class="np-field">
             <label for="p-email">Correo</label>
-            <input id="p-email" type="email" [ngModel]="auth.currentUser()?.email" name="email" disabled />
+            <input
+              id="p-email"
+              type="email"
+              [ngModel]="auth.currentUser()?.email"
+              name="email"
+              disabled
+            />
           </div>
           <div class="np-field">
             <label for="p-tel">Teléfono</label>
-            <input id="p-tel" type="tel" [(ngModel)]="telefono" name="telefono" />
+            <input
+              id="p-tel"
+              type="tel"
+              [(ngModel)]="telefono"
+              name="telefono"
+            />
           </div>
         </div>
 
         <div *ngIf="datosGuardados()" class="save-ok">✓ Datos actualizados</div>
         <div *ngIf="error()" class="save-error">{{ error() }}</div>
 
-        <button type="submit" class="submit-btn" [disabled]="!nombre() || guardando()">
+        <button
+          type="submit"
+          class="submit-btn"
+          [disabled]="!nombre() || guardando()"
+        >
           {{ guardando() ? 'Guardando...' : 'Guardar cambios' }}
         </button>
       </form>
@@ -46,15 +67,29 @@ import { AuthService } from '@core/services/auth.service';
     <div class="panel-card">
       <div class="panel-card-title"><span>//</span> Cambiar contraseña</div>
       <p class="panel-subtitle" style="margin-bottom:16px;">
-        Función disponible próximamente. Por ahora, usa "¿Olvidaste tu contraseña?" desde login.
+        Función disponible próximamente. Por ahora, usa "¿Olvidaste tu
+        contraseña?" desde login.
       </p>
     </div>
   `,
-  styles: [`
-    .save-ok { color: var(--np-accent); font-size: 13px; margin: 4px 0 16px; }
-    .save-error { color: #ff4d4d; font-size: 13px; margin: 4px 0 16px; }
-    input:disabled { opacity: 0.5; cursor: not-allowed; }
-  `],
+  styles: [
+    `
+      .save-ok {
+        color: var(--np-accent);
+        font-size: 13px;
+        margin: 4px 0 16px;
+      }
+      .save-error {
+        color: #ff4d4d;
+        font-size: 13px;
+        margin: 4px 0 16px;
+      }
+      input:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    `,
+  ],
 })
 export class PerfilComponent {
   auth = inject(AuthService);
@@ -78,7 +113,7 @@ export class PerfilComponent {
       setTimeout(() => this.datosGuardados.set(false), 2500);
     } catch (err) {
       this.error.set(
-        err instanceof Error ? err.message : 'No se pudieron guardar los cambios.',
+        mensajeDeError(err, 'No se pudieron guardar los cambios.'),
       );
     } finally {
       this.guardando.set(false);

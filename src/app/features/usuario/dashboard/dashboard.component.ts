@@ -1,5 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
-import { NgFor, NgIf } from '@angular/common';
+import { NgIf } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
 import { ReservaService } from '@core/services/reserva.service';
@@ -8,14 +8,16 @@ import { FavoritosService } from '@core/services/favoritos.service';
 @Component({
   selector: 'app-usuario-dashboard',
   standalone: true,
-  imports: [NgFor, NgIf, RouterLink],
+  imports: [NgIf, RouterLink],
   template: `
     <div class="panel-header">
       <div>
         <h1 class="panel-title"><span>//</span> Mi dashboard</h1>
         <p class="panel-subtitle">Resumen de tu actividad en Null Pointer.</p>
       </div>
-      <a routerLink="/usuario/nueva-reserva" class="btn-main">+ Nueva reserva</a>
+      <a routerLink="/usuario/nueva-reserva" class="btn-main"
+        >+ Nueva reserva</a
+      >
     </div>
 
     <div class="panel-stats-grid">
@@ -44,7 +46,10 @@ import { FavoritosService } from '@core/services/favoritos.service';
         <div class="proxima-row">
           <div>
             <div class="proxima-sala">{{ reserva.salaNombre }}</div>
-            <div class="proxima-fecha">{{ reserva.fecha }} · {{ reserva.hora }} · {{ reserva.duracionHoras }}h</div>
+            <div class="proxima-fecha">
+              {{ reserva.fecha }} · {{ reserva.hora }} ·
+              {{ reserva.duracionHoras }}h
+            </div>
             <div class="proxima-servicios" *ngIf="reserva.servicios.length">
               + {{ reserva.servicios.length }} servicio(s) adicional(es)
             </div>
@@ -56,7 +61,9 @@ import { FavoritosService } from '@core/services/favoritos.service';
         <div class="panel-empty">
           No tienes reservas próximas.
           <div>
-            <a routerLink="/usuario/nueva-reserva" class="btn-main">+ Reservar ahora</a>
+            <a routerLink="/usuario/nueva-reserva" class="btn-main"
+              >+ Reservar ahora</a
+            >
           </div>
         </div>
       </ng-template>
@@ -65,33 +72,72 @@ import { FavoritosService } from '@core/services/favoritos.service';
     <div class="panel-card">
       <div class="panel-card-title"><span>//</span> Accesos rápidos</div>
       <div class="quick-grid">
-        <a routerLink="/usuario/mis-reservas" class="quick-item">▦ Ver mis reservas</a>
-        <a routerLink="/usuario/favoritos" class="quick-item">★ Mis salas favoritas</a>
-        <a routerLink="/servicios" class="quick-item">≡ Servicios de producción</a>
-        <a routerLink="/usuario/soporte" class="quick-item">? Contactar soporte</a>
+        <a routerLink="/usuario/mis-reservas" class="quick-item"
+          >▦ Ver mis reservas</a
+        >
+        <a routerLink="/usuario/favoritos" class="quick-item"
+          >★ Mis salas favoritas</a
+        >
+        <a routerLink="/servicios" class="quick-item"
+          >≡ Servicios de producción</a
+        >
+        <a routerLink="/usuario/soporte" class="quick-item"
+          >? Contactar soporte</a
+        >
       </div>
     </div>
   `,
-  styles: [`
-    .proxima-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
-    .proxima-sala { color: var(--np-white); font-size: 17px; font-weight: 700; margin-bottom: 4px; }
-    .proxima-fecha { color: var(--np-gray); font-size: 13px; }
-    .proxima-servicios { color: var(--np-accent); font-size: 12px; margin-top: 4px; }
-    .proxima-total { color: var(--np-accent); font-size: 22px; font-weight: 700; }
+  styles: [
+    `
+      .proxima-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      .proxima-sala {
+        color: var(--np-white);
+        font-size: 17px;
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+      .proxima-fecha {
+        color: var(--np-gray);
+        font-size: 13px;
+      }
+      .proxima-servicios {
+        color: var(--np-accent);
+        font-size: 12px;
+        margin-top: 4px;
+      }
+      .proxima-total {
+        color: var(--np-accent);
+        font-size: 22px;
+        font-weight: 700;
+      }
 
-    .quick-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
-    .quick-item {
-      display: block;
-      background: #141414;
-      border: 1px solid #262626;
-      color: var(--np-light);
-      text-decoration: none;
-      padding: 14px 16px;
-      font-size: 13.5px;
-      transition: border-color 0.15s;
-      &:hover { border-color: var(--np-accent); color: var(--np-white); }
-    }
-  `],
+      .quick-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 12px;
+      }
+      .quick-item {
+        display: block;
+        background: #141414;
+        border: 1px solid #262626;
+        color: var(--np-light);
+        text-decoration: none;
+        padding: 14px 16px;
+        font-size: 13.5px;
+        transition: border-color 0.15s;
+        &:hover {
+          border-color: var(--np-accent);
+          color: var(--np-white);
+        }
+      }
+    `,
+  ],
 })
 export class UsuarioDashboardComponent {
   private auth = inject(AuthService);
@@ -100,15 +146,20 @@ export class UsuarioDashboardComponent {
 
   private usuarioId = () => String(this.auth.currentUser()?.id ?? '');
 
-  reservas = computed(() => this.reservaService.getReservasDeUsuario(this.usuarioId()));
+  reservas = computed(() =>
+    this.reservaService.getReservasDeUsuario(this.usuarioId()),
+  );
 
   proximas = computed(() =>
     this.reservas().filter(
-      (r) => r.estado !== 'cancelada' && new Date(r.fecha) >= this.hoyMedianoche(),
+      (r) =>
+        r.estado !== 'cancelada' && new Date(r.fecha) >= this.hoyMedianoche(),
     ),
   );
 
-  favoritos = computed(() => this.favoritosService.getFavoritos(this.usuarioId()));
+  favoritos = computed(() =>
+    this.favoritosService.getFavoritos(this.usuarioId()),
+  );
 
   totalInvertido = computed(() =>
     this.reservas()

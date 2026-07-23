@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { NgFor, NgIf } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ReservaService } from '@core/services/reserva.service';
@@ -39,7 +39,9 @@ import { User } from '@models/user.model';
     </div>
 
     <div class="panel-card">
-      <div class="panel-card-title"><span>//</span> Ingresos por servicio adicional</div>
+      <div class="panel-card-title">
+        <span>//</span> Ingresos por servicio adicional
+      </div>
       <div class="bar-row" *ngFor="let s of ingresosPorServicio()">
         <div class="bar-label">{{ s.nombre }}</div>
         <div class="bar-track">
@@ -69,46 +71,83 @@ import { User } from '@models/user.model';
     <div class="panel-card">
       <div class="panel-card-title"><span>//</span> Accesos rápidos</div>
       <div class="quick-grid">
-        <a routerLink="/admin/reservas" class="quick-item">▦ Gestionar reservas</a>
+        <a routerLink="/admin/reservas" class="quick-item"
+          >▦ Gestionar reservas</a
+        >
         <a routerLink="/admin/mensajes" class="quick-item">✉ Ver mensajes</a>
         <a routerLink="/admin/salas" class="quick-item">▧ Editar salas</a>
         <a routerLink="/admin/reportes" class="quick-item">≡ Ver reportes</a>
       </div>
     </div>
   `,
-  styles: [`
-    .bar-row { display: grid; grid-template-columns: 140px 1fr 80px; align-items: center; gap: 12px; margin-bottom: 14px; }
-    .bar-label { font-size: 13px; color: var(--np-light); }
-    .bar-track { height: 8px; background: #1a1a1a; border: 1px solid #262626; }
-    .bar-fill { height: 100%; background: var(--np-accent); }
-    .bar-fill.alt { background: var(--np-accent2); }
-    .bar-value { font-size: 12.5px; color: var(--np-gray); text-align: right; }
-    .quick-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
-    .quick-item {
-      display: block;
-      background: #141414;
-      border: 1px solid #262626;
-      color: var(--np-light);
-      text-decoration: none;
-      padding: 14px 16px;
-      font-size: 13.5px;
-      &:hover { border-color: var(--np-accent); color: var(--np-white); }
-    }
-  `],
+  styles: [
+    `
+      .bar-row {
+        display: grid;
+        grid-template-columns: 140px 1fr 80px;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      .bar-label {
+        font-size: 13px;
+        color: var(--np-light);
+      }
+      .bar-track {
+        height: 8px;
+        background: #1a1a1a;
+        border: 1px solid #262626;
+      }
+      .bar-fill {
+        height: 100%;
+        background: var(--np-accent);
+      }
+      .bar-fill.alt {
+        background: var(--np-accent2);
+      }
+      .bar-value {
+        font-size: 12.5px;
+        color: var(--np-gray);
+        text-align: right;
+      }
+      .quick-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 12px;
+      }
+      .quick-item {
+        display: block;
+        background: #141414;
+        border: 1px solid #262626;
+        color: var(--np-light);
+        text-decoration: none;
+        padding: 14px 16px;
+        font-size: 13.5px;
+        &:hover {
+          border-color: var(--np-accent);
+          color: var(--np-white);
+        }
+      }
+    `,
+  ],
 })
-export class AdminDashboardComponent implements OnInit {
+export class AdminDashboardComponent {
   private reservaService = inject(ReservaService);
   private auth = inject(AuthService);
   private mensajesService = inject(MensajesService);
   private salasService = inject(SalasService);
 
   private reservas = computed(() => this.reservaService.getAllReservas());
-  reservasActivas = computed(() => this.reservas().filter((r) => r.estado !== 'cancelada'));
+  reservasActivas = computed(() =>
+    this.reservas().filter((r) => r.estado !== 'cancelada'),
+  );
   usuarios = signal<User[]>([]);
   private mensajes = computed(() => this.mensajesService.getMensajes());
-  mensajesNuevos = computed(() => this.mensajes().filter((m) => m.estado === 'nuevo'));
+  mensajesNuevos = computed(() =>
+    this.mensajes().filter((m) => m.estado === 'nuevo'),
+  );
 
-  ngOnInit(): void {
+  constructor() {
     this.auth.getAllUsers().then((lista) => this.usuarios.set(lista));
   }
 

@@ -4,6 +4,7 @@ import { NgIf } from '@angular/common';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
 import { rutaInicioSegunRol } from '@core/guards/auth.guard';
+import { mensajeDeError } from '@core/utils/http-error.util';
 
 @Component({
   selector: 'app-login',
@@ -23,8 +24,8 @@ import { rutaInicioSegunRol } from '@core/guards/auth.guard';
         <p class="auth-sub">Accede a tu cuenta para gestionar tus reservas.</p>
 
         <div class="demo-hint">
-          <strong>Modo demo:</strong> admin&#64;nullpointer.mx / admin123
-          &nbsp;·&nbsp; cliente&#64;nullpointer.mx / cliente123
+          <strong>Modo demo:</strong> admin&#64;nullpointer.mx / Admin123!
+          &nbsp;·&nbsp; cliente&#64;nullpointer.mx / Cliente123!
         </div>
 
         <form class="auth-form" (submit)="onSubmit($event)">
@@ -168,7 +169,7 @@ export class LoginComponent {
       const destino = redirect || rutaInicioSegunRol(this.auth);
       this.router.navigateByUrl(destino);
     } catch (err) {
-      this.error.set(err instanceof Error ? err.message : 'No se pudo iniciar sesión.');
+      this.error.set(mensajeDeError(err, 'No se pudo iniciar sesión.'));
     } finally {
       this.loading.set(false);
     }

@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NgFor, NgIf, NgClass } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 import { SalasService } from '@core/services/salas.service';
 import { ServiciosService } from '@core/services/servicios.service';
@@ -13,12 +13,14 @@ type Paso = 1 | 2 | 3 | 4;
 @Component({
   selector: 'app-nueva-reserva',
   standalone: true,
-  imports: [FormsModule, NgFor, NgIf, NgClass],
+  imports: [FormsModule, NgFor, NgIf],
   template: `
     <div class="panel-header">
       <div>
         <h1 class="panel-title"><span>//</span> Nueva reserva</h1>
-        <p class="panel-subtitle">Reserva tu sala y agrega servicios de producción si los necesitas.</p>
+        <p class="panel-subtitle">
+          Reserva tu sala y agrega servicios de producción si los necesitas.
+        </p>
       </div>
     </div>
 
@@ -54,9 +56,15 @@ type Paso = 1 | 2 | 3 | 4;
           (click)="salaId.set(s.id)"
         >
           <div class="sala-opt-name">{{ s.name }}</div>
-          <div class="sala-opt-precio">&#36;{{ s.precio }}<span>/hora</span></div>
-          <div class="sala-opt-cap">{{ s.capacidad }} músicos · {{ s.m2 }}m²</div>
-          <div class="sala-opt-check" *ngIf="salaId() === s.id">✓ Seleccionada</div>
+          <div class="sala-opt-precio">
+            &#36;{{ s.precio }}<span>/hora</span>
+          </div>
+          <div class="sala-opt-cap">
+            {{ s.capacidad }} músicos · {{ s.m2 }}m²
+          </div>
+          <div class="sala-opt-check" *ngIf="salaId() === s.id">
+            ✓ Seleccionada
+          </div>
         </div>
       </div>
       <div class="paso-btns">
@@ -103,7 +111,11 @@ type Paso = 1 | 2 | 3 | 4;
       </div>
       <div class="paso-btns">
         <button class="btn-back" (click)="paso.set(1)">← Volver</button>
-        <button class="btn-paso" [disabled]="!fecha() || !hora()" (click)="paso.set(3)">
+        <button
+          class="btn-paso"
+          [disabled]="!fecha() || !hora()"
+          (click)="paso.set(3)"
+        >
           Continuar → Servicios adicionales
         </button>
       </div>
@@ -123,13 +135,20 @@ type Paso = 1 | 2 | 3 | 4;
             <div class="servicio-icon">{{ s.icono }}</div>
             <div class="servicio-info">
               <div class="servicio-nombre">{{ s.nombre }}</div>
-              <div class="servicio-precio">&#36;{{ s.precio }} <span>{{ s.unidad }}</span></div>
+              <div class="servicio-precio">
+                &#36;{{ s.precio }} <span>{{ s.unidad }}</span>
+              </div>
             </div>
-            <div class="servicio-check">{{ isSeleccionado(s.id) ? '✓' : '+' }}</div>
+            <div class="servicio-check">
+              {{ isSeleccionado(s.id) ? '✓' : '+' }}
+            </div>
           </div>
           <p class="servicio-desc">{{ s.descripcion }}</p>
 
-          <div class="servicio-cantidad" *ngIf="isSeleccionado(s.id) && s.requiereCantidad">
+          <div
+            class="servicio-cantidad"
+            *ngIf="isSeleccionado(s.id) && s.requiereCantidad"
+          >
             <label [for]="'cant-' + s.id">{{ s.cantidadLabel }}</label>
             <input
               [id]="'cant-' + s.id"
@@ -150,7 +169,9 @@ type Paso = 1 | 2 | 3 | 4;
 
       <div class="paso-btns">
         <button class="btn-back" (click)="paso.set(2)">← Volver</button>
-        <button class="btn-paso" (click)="paso.set(4)">Continuar → Confirmación</button>
+        <button class="btn-paso" (click)="paso.set(4)">
+          Continuar → Confirmación
+        </button>
       </div>
     </div>
 
@@ -178,13 +199,16 @@ type Paso = 1 | 2 | 3 | 4;
           <span>Fecha:</span><strong>{{ fecha() }}</strong>
         </div>
         <div class="resumen-row">
-          <span>Hora:</span><strong>{{ hora() }} · {{ duracionHoras() }}h</strong>
+          <span>Hora:</span
+          ><strong>{{ hora() }} · {{ duracionHoras() }}h</strong>
         </div>
         <div class="resumen-row">
-          <span>Sala ({{ duracionHoras() }}h):</span><strong>&#36;{{ precioSala() }}</strong>
+          <span>Sala ({{ duracionHoras() }}h):</span
+          ><strong>&#36;{{ precioSala() }}</strong>
         </div>
         <div class="resumen-row" *ngFor="let s of serviciosSeleccionados()">
-          <span>{{ s.nombre }} &times; {{ s.cantidad }}:</span><strong>&#36;{{ s.subtotal }}</strong>
+          <span>{{ s.nombre }} &times; {{ s.cantidad }}:</span
+          ><strong>&#36;{{ s.subtotal }}</strong>
         </div>
         <div class="resumen-row total">
           <span>Total:</span><strong>&#36;{{ precioTotal() }} MXN</strong>
@@ -195,7 +219,11 @@ type Paso = 1 | 2 | 3 | 4;
 
       <div class="paso-btns">
         <button class="btn-back" (click)="paso.set(3)">← Volver</button>
-        <button class="btn-confirmar" [disabled]="creando()" (click)="confirmar()">
+        <button
+          class="btn-confirmar"
+          [disabled]="creando()"
+          (click)="confirmar()"
+        >
           {{ creando() ? 'Confirmando...' : '✓ Confirmar reserva' }}
         </button>
       </div>
@@ -204,60 +232,122 @@ type Paso = 1 | 2 | 3 | 4;
     <div *ngIf="confirmado()" class="confirmacion">
       <div class="conf-icon">✓</div>
       <h2>¡Reserva confirmada!</h2>
-      <p>Tu sesión en <strong>{{ salaSeleccionada()?.name }}</strong> quedó agendada para el {{ fecha() }}.</p>
-      <button class="btn-paso" (click)="irAMisReservas()">Ver mis reservas</button>
+      <p>
+        Tu sesión en <strong>{{ salaSeleccionada()?.name }}</strong> quedó
+        agendada para el {{ fecha() }}.
+      </p>
+      <button class="btn-paso" (click)="irAMisReservas()">
+        Ver mis reservas
+      </button>
     </div>
   `,
-  styles: [`
-    .auth-error {
-      background: rgba(255, 77, 0, 0.1);
-      border: 1px solid var(--np-accent2);
-      color: var(--np-accent2);
-      font-size: 13px;
-      padding: 10px 14px;
-      margin-bottom: 20px;
-    }
-    .servicios-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 14px;
-      margin-bottom: 24px;
-    }
-    .servicio-card {
-      background: var(--np-surface);
-      border: 1px solid #2a2a2a;
-      padding: 18px;
-      transition: border-color 0.2s;
-      &.selected { border-color: var(--np-accent); }
-    }
-    .servicio-top { display: flex; align-items: center; gap: 12px; cursor: pointer; }
-    .servicio-icon {
-      width: 44px; height: 44px;
-      display: flex; align-items: center; justify-content: center;
-      background: #141414; border: 1px solid #2a2a2a;
-      color: var(--np-accent); font-size: 11px; font-weight: 700;
-      flex-shrink: 0;
-    }
-    .servicio-info { flex: 1; }
-    .servicio-nombre { color: var(--np-white); font-weight: 700; font-size: 14.5px; }
-    .servicio-precio { color: var(--np-gray); font-size: 12.5px; margin-top: 2px; span { text-transform: lowercase; } }
-    .servicio-check {
-      width: 26px; height: 26px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      border: 1px solid #333; color: var(--np-gray); font-size: 13px; flex-shrink: 0;
-      .selected & { background: var(--np-accent); color: var(--np-black); border-color: var(--np-accent); }
-    }
-    .servicio-desc { color: var(--np-gray); font-size: 12.5px; line-height: 1.5; margin-top: 10px; }
-    .servicio-cantidad {
-      margin-top: 12px;
-      display: flex; align-items: center; justify-content: space-between; gap: 10px;
-      label { font-size: 11.5px; color: var(--np-gray); text-transform: uppercase; letter-spacing: 0.5px; }
-      input {
-        width: 70px; background: #0f0f0f; border: 1px solid #2a2a2a; color: var(--np-white);
-        font-family: var(--font-mono); padding: 6px 8px; text-align: center;
+  styles: [
+    `
+      .auth-error {
+        background: rgba(255, 77, 0, 0.1);
+        border: 1px solid var(--np-accent2);
+        color: var(--np-accent2);
+        font-size: 13px;
+        padding: 10px 14px;
+        margin-bottom: 20px;
       }
-    }
-  `],
+      .servicios-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 14px;
+        margin-bottom: 24px;
+      }
+      .servicio-card {
+        background: var(--np-surface);
+        border: 1px solid #2a2a2a;
+        padding: 18px;
+        transition: border-color 0.2s;
+        &.selected {
+          border-color: var(--np-accent);
+        }
+      }
+      .servicio-top {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+      }
+      .servicio-icon {
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #141414;
+        border: 1px solid #2a2a2a;
+        color: var(--np-accent);
+        font-size: 11px;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+      .servicio-info {
+        flex: 1;
+      }
+      .servicio-nombre {
+        color: var(--np-white);
+        font-weight: 700;
+        font-size: 14.5px;
+      }
+      .servicio-precio {
+        color: var(--np-gray);
+        font-size: 12.5px;
+        margin-top: 2px;
+        span {
+          text-transform: lowercase;
+        }
+      }
+      .servicio-check {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #333;
+        color: var(--np-gray);
+        font-size: 13px;
+        flex-shrink: 0;
+        .selected & {
+          background: var(--np-accent);
+          color: var(--np-black);
+          border-color: var(--np-accent);
+        }
+      }
+      .servicio-desc {
+        color: var(--np-gray);
+        font-size: 12.5px;
+        line-height: 1.5;
+        margin-top: 10px;
+      }
+      .servicio-cantidad {
+        margin-top: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        label {
+          font-size: 11.5px;
+          color: var(--np-gray);
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        input {
+          width: 70px;
+          background: #0f0f0f;
+          border: 1px solid #2a2a2a;
+          color: var(--np-white);
+          font-family: var(--font-mono);
+          padding: 6px 8px;
+          text-align: center;
+        }
+      }
+    `,
+  ],
 })
 export class NuevaReservaComponent {
   private salasService = inject(SalasService);
@@ -272,7 +362,16 @@ export class NuevaReservaComponent {
   error = signal<string | null>(null);
 
   hoy = new Date().toISOString().split('T')[0];
-  horas = ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'];
+  horas = [
+    '08:00',
+    '10:00',
+    '12:00',
+    '14:00',
+    '16:00',
+    '18:00',
+    '20:00',
+    '22:00',
+  ];
 
   salas = this.salasService.getSalas();
   servicios = this.serviciosService.getServicios();
@@ -283,13 +382,16 @@ export class NuevaReservaComponent {
   duracionHoras = signal<number>(1);
   notas = signal<string>('');
 
-  // servicioId -> cantidad
   private cantidades = signal<Record<string, number>>({});
   seleccionados = signal<Set<string>>(new Set());
 
-  salaSeleccionada = computed(() => this.salas.find((s) => s.id === this.salaId()));
+  salaSeleccionada = computed(() =>
+    this.salas.find((s) => s.id === this.salaId()),
+  );
 
-  precioSala = computed(() => (this.salaSeleccionada()?.precio ?? 0) * Number(this.duracionHoras()));
+  precioSala = computed(
+    () => (this.salaSeleccionada()?.precio ?? 0) * Number(this.duracionHoras()),
+  );
 
   serviciosSeleccionados = computed<ServicioSeleccionado[]>(() =>
     Array.from(this.seleccionados()).map((id) => {
@@ -358,7 +460,9 @@ export class NuevaReservaComponent {
       });
       this.confirmado.set(true);
     } catch (err) {
-      this.error.set(err instanceof Error ? err.message : 'No se pudo crear la reserva.');
+      this.error.set(
+        err instanceof Error ? err.message : 'No se pudo crear la reserva.',
+      );
     } finally {
       this.creando.set(false);
     }
