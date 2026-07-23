@@ -1,10 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ServicioAdicional, ServicioTipo } from '@models/servicio.model';
 
-/**
- * Catálogo de servicios de producción (adicionales a la renta de sala).
- * TODO(API): reemplazar por this.http.get<ServicioAdicional[]>('/api/servicios').
- */
 @Injectable({ providedIn: 'root' })
 export class ServiciosService {
   private servicios: ServicioAdicional[] = [
