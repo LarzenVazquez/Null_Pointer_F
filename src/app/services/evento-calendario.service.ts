@@ -56,11 +56,6 @@ interface EventosListResponse {
   eventos: EventoCalendario[];
 }
 
-/**
- * Consume la API pública /api/eventos del backend (ver
- * backend/src/services/eventos.service.ts). Reemplaza la versión anterior
- * que tenía los temas hardcodeados en el cliente.
- */
 @Injectable({ providedIn: 'root' })
 export class EventoCalendarioService {
   private http = inject(HttpClient);
@@ -70,10 +65,7 @@ export class EventoCalendarioService {
   private _eventoActivo = signal<EventoCalendario>(EVENTO_DEFAULT);
   private _eventosDisponibles = signal<EventoCalendario[]>([]);
 
-  /** Evento activo reactivo (se actualiza cada vez que cambia la fecha simulada). */
   readonly activeEvent = this._eventoActivo.asReadonly();
-
-  /** Lista de todos los temas configurados (para pintar la grilla del panel admin). */
   readonly eventosDisponibles = this._eventosDisponibles.asReadonly();
 
   constructor() {
@@ -81,42 +73,43 @@ export class EventoCalendarioService {
     this.cargarListaEventos();
   }
 
-  /** Sobreescribe la fecha para pruebas (barra "Simular fecha" / panel Admin). */
   setTestDate(date: Date): void {
     this._today.set(date);
     this.cargarEventoActivo(date);
   }
 
-  /** Restaura la fecha real del sistema. */
   resetDate(): void {
+    this.fijarEventoGlobal(null);
     this.setTestDate(new Date());
   }
 
-  /** Último listado de eventos conocido (se carga una vez al iniciar el servicio). */
   getTodosLosEventos(): EventoCalendario[] {
     return this._eventosDisponibles();
   }
 
-  /**
-   * Usado por el panel de Admin: previsualiza un tema puntual pidiendo
-   * su definición completa al backend (GET /api/eventos/:tipo), sin tener
-   * que recalcular el rango de fechas en el cliente.
-   */
   previewEvento(tipo: EventoTipo): void {
-    this.http.get<{ ok: boolean; evento: EventoCalendario }>(
-      `${this.apiUrl}/${tipo}`,
-    ).subscribe({
-      next: (res) => this._eventoActivo.set(res.evento),
-      error: () => this._eventoActivo.set(EVENTO_DEFAULT),
-    });
+    this.http
+      .get<{ ok: boolean; evento: EventoCalendario }>(`${this.apiUrl}/${tipo}`)
+      .subscribe({
+        next: (res) => this._eventoActivo.set(res.evento),
+        error: () => this._eventoActivo.set(EVENTO_DEFAULT),
+      });
   }
 
-  /**
-   * Devuelve el último evento activo conocido (valor cacheado del signal).
-   * La consulta real al backend es asíncrona: usa `activeEvent` en el
-   * template para reactividad, o `setTestDate()` para forzar una nueva
-   * consulta con otra fecha.
-   */
+  fijarEventoGlobal(tipo: EventoTipo | null): void {
+    this.http
+      .post<{
+        ok: boolean;
+        evento: EventoCalendario;
+      }>(`${this.apiUrl}/fijar`, { tipo })
+      .subscribe({
+        next: (res) => {
+          this._eventoActivo.set(res.evento);
+        },
+        error: (err) => console.error('Error al fijar evento global', err),
+      });
+  }
+
   getEventoActivo(fecha: Date = new Date()): EventoCalendario {
     return this._eventoActivo();
   }

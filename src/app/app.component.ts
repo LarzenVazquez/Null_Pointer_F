@@ -1,14 +1,19 @@
 import { Component, inject } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Router, NavigationEnd, RouterOutlet } from '@angular/router';
+import { NgIf } from '@angular/common';
 import { NavbarComponent } from '@layouts/public-layout/components/navbar/navbar.component';
 import { FooterComponent } from '@layouts/public-layout/components/footer/footer.component';
 import { SeasonalThemeComponent } from '@shared/components/seasonal-theme/seasonal-theme.component';
 import { EventoCalendarioService } from '@services/evento-calendario.service';
+import { filter, map } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
+
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [
     RouterOutlet,
+    NgIf,
     NavbarComponent,
     FooterComponent,
     SeasonalThemeComponent,
@@ -21,11 +26,11 @@ import { EventoCalendarioService } from '@services/evento-calendario.service';
       [style.--accent]="activeEvent().accentColor"
       [style.--bg]="activeEvent().bgColor || '#0a0a0a'"
     >
-      <app-navbar />
+      <app-navbar *ngIf="!isAdminRoute()" />
       <main class="site-main">
         <router-outlet></router-outlet>
       </main>
-      <app-footer />
+      <app-footer *ngIf="!isAdminRoute()" />
     </div>
   `,
   styles: [
@@ -45,5 +50,15 @@ import { EventoCalendarioService } from '@services/evento-calendario.service';
 })
 export class AppComponent {
   private themeService = inject(EventoCalendarioService);
+  private router = inject(Router);
+
   activeEvent = this.themeService.activeEvent;
+
+  isAdminRoute = toSignal(
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      map((event) => event.urlAfterRedirects.startsWith('/admin')),
+    ),
+    { initialValue: this.router.url.startsWith('/admin') },
+  );
 }

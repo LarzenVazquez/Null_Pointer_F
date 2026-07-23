@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { NgFor } from '@angular/common';
 import {
   EventoCalendarioService,
@@ -14,19 +14,19 @@ import {
       <div>
         <h1 class="panel-title"><span>//</span> Eventos estacionales</h1>
         <p class="panel-subtitle">
-          Previsualiza cómo se ve el sitio con cada tema de temporada. El tema
-          real se activa solo, según la fecha del sistema.
+          Previsualiza localmente o fija un tema globalmente en el servidor para
+          todos los usuarios.
         </p>
       </div>
     </div>
 
     <div class="panel-card">
       <div class="panel-card-title">
-        <span>//</span> Tema activo ahora mismo
+        <span>//</span> Tema activo en la plataforma
       </div>
       <div class="evento-actual">
         <span class="evento-emoji">{{
-          eventoService.activeEvent().emoji || '—'
+          eventoService.activeEvent().emoji || '-'
         }}</span>
         <div>
           <div class="evento-nombre">
@@ -52,15 +52,24 @@ import {
           }}
         </div>
         <p class="evento-banner">{{ ev.banner }}</p>
-        <button class="submit-btn evento-btn" (click)="previsualizar(ev.tipo)">
-          Previsualizar
-        </button>
+
+        <div class="evento-actions">
+          <button
+            class="submit-btn evento-btn secondary-btn"
+            (click)="previsualizar(ev.tipo)"
+          >
+            Previsualizar
+          </button>
+          <button class="submit-btn evento-btn" (click)="fijar(ev.tipo)">
+            Fijar Global
+          </button>
+        </div>
       </div>
     </div>
 
     <div class="reset-row">
       <button class="btn-back" (click)="restaurar()">
-        ← Volver a la fecha real
+        ← Quitar evento fijado y volver a modo automático
       </button>
     </div>
   `,
@@ -87,7 +96,7 @@ import {
 
       .eventos-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
         gap: 16px;
         margin: 24px 0;
       }
@@ -119,8 +128,19 @@ import {
         margin-bottom: 16px;
         min-height: 36px;
       }
+      .evento-actions {
+        display: flex;
+        gap: 8px;
+      }
       .evento-btn {
         width: 100%;
+        padding: 8px;
+        font-size: 12px;
+      }
+      .secondary-btn {
+        background: transparent;
+        border: 1px solid var(--np-accent, #c8ff00);
+        color: var(--np-accent, #c8ff00);
       }
       .reset-row {
         margin-top: 8px;
@@ -130,11 +150,14 @@ import {
 })
 export class AdminEventosComponent {
   eventoService = inject(EventoCalendarioService);
-
   eventos = this.eventoService.eventosDisponibles;
 
   previsualizar(tipo: EventoTipo): void {
     this.eventoService.previewEvento(tipo);
+  }
+
+  fijar(tipo: EventoTipo): void {
+    this.eventoService.fijarEventoGlobal(tipo);
   }
 
   restaurar(): void {
