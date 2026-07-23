@@ -22,12 +22,6 @@ import { mensajeDeError } from '@core/utils/http-error.util';
         <div class="eyebrow">// Bienvenido de vuelta</div>
         <h1>Inicia <span>sesión</span></h1>
         <p class="auth-sub">Accede a tu cuenta para gestionar tus reservas.</p>
-
-        <div class="demo-hint">
-          <strong>Modo demo:</strong> admin&#64;nullpointer.mx / Admin123!
-          &nbsp;·&nbsp; cliente&#64;nullpointer.mx / Cliente123!
-        </div>
-
         <form class="auth-form" (submit)="onSubmit($event)">
           <div class="np-field">
             <label for="l-email">Correo</label>
@@ -74,75 +68,103 @@ import { mensajeDeError } from '@core/utils/http-error.util';
       </div>
     </div>
   `,
-  styles: [`
-    .np-breadcrumb {
-      padding: 14px 42px;
-      font-size: 13px;
-      color: var(--np-gray);
-      border-bottom: 1px solid #1a1a1a;
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      a { color: var(--np-accent); text-decoration: none; }
-    }
-    .auth-container {
-      min-height: calc(100vh - 160px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 40px 20px;
-    }
-    .auth-card {
-      background: var(--np-surface);
-      border: 1px solid #222;
-      padding: 40px;
-      width: 100%;
-      max-width: 440px;
-    }
-    .eyebrow {
-      font-size: 12px;
-      letter-spacing: 2px;
-      color: var(--np-accent);
-      text-transform: uppercase;
-      margin-bottom: 12px;
-    }
-    h1 {
-      font-size: 28px;
-      color: var(--np-white);
-      margin-bottom: 8px;
-      font-weight: 700;
-      span { color: var(--np-accent); }
-    }
-    .auth-sub { color: var(--np-gray); font-size: 14px; margin-bottom: 20px; }
-    .demo-hint {
-      background: #0f0f0f;
-      border: 1px dashed #333;
-      color: var(--np-gray);
-      font-size: 12px;
-      padding: 10px 14px;
-      margin-bottom: 24px;
-      line-height: 1.6;
-      strong { color: var(--np-accent); }
-    }
-    .auth-form { display: flex; flex-direction: column; gap: 16px; }
-    .auth-error {
-      background: rgba(255, 77, 0, 0.1);
-      border: 1px solid var(--np-accent2);
-      color: var(--np-accent2);
-      font-size: 13px;
-      padding: 10px 14px;
-    }
-    .auth-submit { width: 100%; margin-top: 4px; }
-    .auth-links {
-      margin-top: 22px;
-      text-align: center;
-      font-size: 13px;
-      color: var(--np-gray);
-      a { color: var(--np-accent); text-decoration: none; }
-      a:hover { text-decoration: underline; }
-      .dot { margin: 0 8px; color: #444; }
-    }
-  `],
+  styles: [
+    `
+      .np-breadcrumb {
+        padding: 14px 42px;
+        font-size: 13px;
+        color: var(--np-gray);
+        border-bottom: 1px solid #1a1a1a;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        a {
+          color: var(--np-accent);
+          text-decoration: none;
+        }
+      }
+      .auth-container {
+        min-height: calc(100vh - 160px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+      }
+      .auth-card {
+        background: var(--np-surface);
+        border: 1px solid #222;
+        padding: 40px;
+        width: 100%;
+        max-width: 440px;
+      }
+      .eyebrow {
+        font-size: 12px;
+        letter-spacing: 2px;
+        color: var(--np-accent);
+        text-transform: uppercase;
+        margin-bottom: 12px;
+      }
+      h1 {
+        font-size: 28px;
+        color: var(--np-white);
+        margin-bottom: 8px;
+        font-weight: 700;
+        span {
+          color: var(--np-accent);
+        }
+      }
+      .auth-sub {
+        color: var(--np-gray);
+        font-size: 14px;
+        margin-bottom: 20px;
+      }
+      .demo-hint {
+        background: #0f0f0f;
+        border: 1px dashed #333;
+        color: var(--np-gray);
+        font-size: 12px;
+        padding: 10px 14px;
+        margin-bottom: 24px;
+        line-height: 1.6;
+        strong {
+          color: var(--np-accent);
+        }
+      }
+      .auth-form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .auth-error {
+        background: rgba(255, 77, 0, 0.1);
+        border: 1px solid var(--np-accent2);
+        color: var(--np-accent2);
+        font-size: 13px;
+        padding: 10px 14px;
+      }
+      .auth-submit {
+        width: 100%;
+        margin-top: 4px;
+      }
+      .auth-links {
+        margin-top: 22px;
+        text-align: center;
+        font-size: 13px;
+        color: var(--np-gray);
+        a {
+          color: var(--np-accent);
+          text-decoration: none;
+        }
+        a:hover {
+          text-decoration: underline;
+        }
+        .dot {
+          margin: 0 8px;
+          color: #444;
+        }
+      }
+    `,
+  ],
 })
 export class LoginComponent {
   private auth = inject(AuthService);
