@@ -7,11 +7,18 @@ import {
   Router,
 } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
+import { AdminSearchComponent } from '@shared/components/admin-search/admin-search.component';
 
 @Component({
   selector: 'app-admin-layout',
   standalone: true,
-  imports: [NgIf, RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [
+    NgIf,
+    RouterLink,
+    RouterLinkActive,
+    RouterOutlet,
+    AdminSearchComponent,
+  ],
   template: `
     <div class="panel-layout">
       <aside class="panel-sidebar" aria-label="Navegación de administración">
@@ -87,6 +94,9 @@ import { AuthService } from '@core/services/auth.service';
       </aside>
 
       <main class="panel-content">
+        <div class="panel-topbar" *ngIf="auth.isAdmin()">
+          <app-admin-search></app-admin-search>
+        </div>
         <router-outlet></router-outlet>
       </main>
     </div>
@@ -203,6 +213,11 @@ import { AuthService } from '@core/services/auth.service';
         background: var(--bg);
         overflow-y: auto;
         min-height: 100vh;
+      }
+      .panel-topbar {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 24px;
       }
     `,
   ],

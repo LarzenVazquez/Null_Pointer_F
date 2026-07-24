@@ -31,6 +31,8 @@ const ROLES_DISPONIBLES: UserRole[] = ['Administrador', 'Editor', 'Usuario'];
             <th>Correo</th>
             <th>Teléfono</th>
             <th>Registro</th>
+            <th>Estado</th>
+            <!-- Nueva columna para el estado -->
             <th>Rol</th>
             <th>Acciones</th>
           </tr>
@@ -41,6 +43,18 @@ const ROLES_DISPONIBLES: UserRole[] = ['Administrador', 'Editor', 'Usuario'];
             <td>{{ u.email }}</td>
             <td>{{ u.telefono || '—' }}</td>
             <td>{{ u.fechaRegistro | slice: 0 : 10 }}</td>
+
+            <!-- Badge indicador de activo/inactivo -->
+            <td>
+              <span
+                class="status-badge"
+                [class.status-confirmada]="u.activo"
+                [class.status-error]="!u.activo"
+              >
+                {{ u.activo ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+
             <td>
               <span
                 class="status-badge"
@@ -65,6 +79,19 @@ const ROLES_DISPONIBLES: UserRole[] = ['Administrador', 'Editor', 'Usuario'];
                   {{ r }}
                 </option>
               </select>
+
+              <!-- Botón para alternar la baja lógica -->
+              <button
+                class="mini-btn"
+                style="margin-left: 8px;"
+                [disabled]="cambiandoId() === u.id || esCuentaPropia(u)"
+                [title]="
+                  esCuentaPropia(u) ? 'No puedes cambiar tu propio estado' : ''
+                "
+                (click)="toggleEstado(u)"
+              >
+                {{ u.activo ? 'Desactivar' : 'Activar' }}
+              </button>
             </td>
           </tr>
         </tbody>
@@ -94,6 +121,11 @@ const ROLES_DISPONIBLES: UserRole[] = ['Administrador', 'Editor', 'Usuario'];
         color: #ff4d4d;
         font-size: 13px;
         margin: 4px 0 16px;
+      }
+      /* Clase para el estado inactivo */
+      .status-error {
+        background-color: #ff4d4d;
+        color: white;
       }
     `,
   ],
@@ -138,6 +170,30 @@ export class AdminUsuariosComponent implements OnInit {
       );
     } catch (err) {
       this.error.set(mensajeDeError(err, 'No se pudo cambiar el rol.'));
+    } finally {
+      this.cambiandoId.set(null);
+    }
+  }
+
+  // Método para manejar la activación/desactivación del usuario
+  async toggleEstado(u: User): Promise<void> {
+    this.error.set(null);
+    this.cambiandoId.set(u.id);
+
+    const nuevoEstado = !u.activo;
+
+    try {
+      const actualizado = await this.auth.cambiarEstadoUsuario(
+        u.id,
+        nuevoEstado,
+      );
+      this.usuarios.update((lista) =>
+        lista.map((x) => (x.id === u.id ? actualizado : x)),
+      );
+    } catch (err) {
+      this.error.set(
+        mensajeDeError(err, 'No se pudo cambiar el estado del usuario.'),
+      );
     } finally {
       this.cambiandoId.set(null);
     }

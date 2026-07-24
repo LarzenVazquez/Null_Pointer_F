@@ -45,6 +45,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'terminos-condiciones',
+    loadComponent: () =>
+      import('@features/public/legal/terminos-condiciones.component').then(
+        (m) => m.TerminosCondicionesComponent,
+      ),
+  },
+  {
     path: 'auth',
     canActivate: [guestGuard],
     children: [
@@ -65,9 +72,9 @@ export const routes: Routes = [
       {
         path: 'recuperar-password',
         loadComponent: () =>
-          import(
-            '@features/auth/recuperar-password/recuperar-password.component'
-          ).then((m) => m.RecuperarPasswordComponent),
+          import('@features/auth/recuperar-password/recuperar-password.component').then(
+            (m) => m.RecuperarPasswordComponent,
+          ),
       },
       { path: '', redirectTo: 'login', pathMatch: 'full' },
     ],

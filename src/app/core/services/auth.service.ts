@@ -1,8 +1,15 @@
-import { Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
+import {
+  Injectable,
+  PLATFORM_ID,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '@environments/environment';
+import { CriptoService } from '@core/services/cripto.service';
 import {
   AuthCredentials,
   AuthResponse,
@@ -12,16 +19,12 @@ import {
   rolPrincipal,
 } from '@models/user.model';
 
-// Clave de localStorage donde vive el access token (JWT de corta duración).
-// El interceptor (auth.interceptor.ts) lo lee de aquí para adjuntarlo
-// como header `Authorization: Bearer <token>` en cada petición.
 export const AUTH_TOKEN_KEY = 'np_auth_token';
 const AUTH_USER_KEY = 'np_auth_user';
 
 const API_URL = `${environment.apiUrl}/auth`;
 const USUARIOS_URL = `${environment.apiUrl}/usuarios`;
 
-// --- Formas "crudas" que devuelve el backend (ver src/services/*.service.ts) ---
 interface UsuarioDTO {
   id: number;
   nombre: string;
@@ -60,23 +63,12 @@ function mapearUsuario(dto: UsuarioDTO): User {
   };
 }
 
-/**
- * AuthService — implementación real conectada al backend.
- *
- * Estrategia de sesión:
- *  - El access token (JWT, vive ~15 min) se guarda en localStorage y viaja
- *    en el header Authorization en cada petición (ver auth.interceptor.ts).
- *  - El refresh token vive en una cookie httpOnly que el navegador maneja
- *    solo; nunca es visible desde este código (por diseño, mitiga XSS).
- *  - Al arrancar la app, si hay una sesión previa cacheada, se intenta
- *    refrescar en segundo plano contra /auth/refresh para validar que la
- *    cookie siga viva y obtener un access token fresco.
- */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private http = inject(HttpClient);
   private platformId = inject(PLATFORM_ID);
   private isBrowser = isPlatformBrowser(this.platformId);
+  private cripto = inject(CriptoService);
 
   private currentUserSig = signal<User | null>(this.loadUserFromStorage());
 
@@ -87,19 +79,18 @@ export class AuthService {
 
   constructor() {
     if (this.isBrowser) {
-      // Intento silencioso de restaurar sesión al recargar la página.
       this.refrescarSesion().catch(() => {
-        // La cookie de refresh no existe o expiró: se limpia cualquier
-        // sesión cacheada para no mostrar datos obsoletos.
         this.limpiarSesionLocal();
       });
     }
   }
 
   async login(credentials: AuthCredentials): Promise<AuthResponse> {
+    const payloadCifrado = await this.cripto.cifrar(credentials);
+
     const res = await firstValueFrom(
-      this.http.post<LoginResponse>(`${API_URL}/login`, credentials, {
-        withCredentials: true, // necesario para recibir la cookie de refresh
+      this.http.post<LoginResponse>(`${API_URL}/login`, payloadCifrado, {
+        withCredentials: true,
       }),
     );
 
@@ -108,11 +99,6 @@ export class AuthService {
     return { user, token: res.accessToken };
   }
 
-  /**
-   * Registra al usuario (con rol "Usuario" por defecto en el backend) y
-   * luego inicia sesión automáticamente para mantener la UX que ya tenía
-   * la app (el registro deja al usuario logueado).
-   */
   async register(payload: RegisterPayload): Promise<AuthResponse> {
     await firstValueFrom(
       this.http.post<RegistroResponse>(`${API_URL}/registro`, payload),
@@ -122,9 +108,6 @@ export class AuthService {
   }
 
   recoverPassword(email: string): Promise<{ sent: boolean }> {
-    // TODO(backend): implementar envío real de correo de recuperación.
-    // Por ahora, igual que antes, siempre "resuelve" sin revelar si el
-    // correo existe (buena práctica de seguridad).
     return Promise.resolve({ sent: true });
   }
 
@@ -146,18 +129,15 @@ export class AuthService {
     }
   }
 
-  /** true si el usuario tiene ese rol asignado (soporta el modelo N:M del backend). */
   hasRole(role: UserRole): boolean {
     return this.currentUserSig()?.roles.includes(role) ?? false;
   }
 
-  /** true si el usuario tiene alguno de los roles indicados. */
   hasAnyRole(...roles: UserRole[]): boolean {
     const actuales = this.currentUserSig()?.roles ?? [];
     return roles.some((r) => actuales.includes(r));
   }
 
-  /** true si el usuario tiene el permiso granular indicado (ej. "usuarios.crear"). */
   hasPermission(permiso: string): boolean {
     return this.currentUserSig()?.permisos.includes(permiso) ?? false;
   }
@@ -178,7 +158,6 @@ export class AuthService {
     }
   }
 
-  /** Panel de Admin/Editor: lista todos los usuarios registrados. Requiere permiso "usuarios.ver". */
   async getAllUsers(): Promise<User[]> {
     const res = await firstValueFrom(
       this.http.get<{ ok: boolean; usuarios: UsuarioDTO[] }>(USUARIOS_URL),
@@ -186,7 +165,6 @@ export class AuthService {
     return res.usuarios.map(mapearUsuario);
   }
 
-  /** Panel de Admin: cambia el rol de un usuario. Requiere rol "Administrador" en el backend. */
   async updateUserRole(userId: number, rol: UserRole): Promise<User> {
     const res = await firstValueFrom(
       this.http.patch<{ ok: boolean; usuario: UsuarioDTO }>(
@@ -196,7 +174,6 @@ export class AuthService {
     );
     const actualizado = mapearUsuario(res.usuario);
 
-    // Si el usuario editado es el que tiene la sesión activa, refresca su signal.
     const actual = this.currentUserSig();
     if (actual?.id === userId) {
       this.currentUserSig.set(actualizado);
@@ -208,11 +185,28 @@ export class AuthService {
     return actualizado;
   }
 
-  // ---------------------------------------------------------------------
-  // Internos
-  // ---------------------------------------------------------------------
+  // --- NUEVA FUNCIÓN PARA LA BAJA LÓGICA ---
+  async cambiarEstadoUsuario(userId: number, activo: boolean): Promise<User> {
+    const res = await firstValueFrom(
+      this.http.patch<{ ok: boolean; usuario: UsuarioDTO }>(
+        `${USUARIOS_URL}/${userId}/estado`,
+        { activo },
+      ),
+    );
+    const actualizado = mapearUsuario(res.usuario);
 
-  /** Intercambia la cookie de refresh por un access token nuevo + el usuario actualizado. */
+    const actual = this.currentUserSig();
+    if (actual?.id === userId) {
+      this.currentUserSig.set(actualizado);
+      if (this.isBrowser) {
+        localStorage.setItem(AUTH_USER_KEY, JSON.stringify(actualizado));
+      }
+    }
+
+    return actualizado;
+  }
+  // -----------------------------------------
+
   private async refrescarSesion(): Promise<void> {
     const res = await firstValueFrom(
       this.http.post<LoginResponse>(

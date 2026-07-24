@@ -31,6 +31,11 @@ import { RouterLink } from '@angular/router';
         <a href="mailto:contacto@nullpointer.mx">contacto&#64;nullpointer.mx</a>
         <a href="#" target="_blank" rel="noopener">Instagram</a>
       </div>
+
+      <nav class="np-footer-col" aria-label="Paginas hermanas">
+        <div class="np-footer-col-title">// Paginas hermanas</div>
+        <a routerLink="/terminos-condiciones">Términos y condiciones</a>
+      </nav>
     </footer>
 
     <div class="np-footer-bottom">
