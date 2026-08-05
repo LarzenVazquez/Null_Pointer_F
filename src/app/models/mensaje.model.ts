@@ -8,7 +8,7 @@ export interface Mensaje {
   asunto: string;
   mensaje: string;
   origen: MensajeOrigen;
-  usuarioId?: string;
+  usuarioId?: number;
   estado: MensajeEstado;
   creadoEn: string;
 }
@@ -19,5 +19,4 @@ export interface NuevoMensajePayload {
   asunto: string;
   mensaje: string;
   origen: MensajeOrigen;
-  usuarioId?: string;
 }

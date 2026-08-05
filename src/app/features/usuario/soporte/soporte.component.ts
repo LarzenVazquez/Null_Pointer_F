@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { NgFor, NgIf } from '@angular/common';
 import { AuthService } from '@core/services/auth.service';
 import { MensajesService } from '@core/services/mensajes.service';
+import { mensajeDeError } from '@core/utils/http-error.util';
 
 interface Faq {
   pregunta: string;
@@ -58,8 +59,13 @@ interface Faq {
             name="mensaje"
           ></textarea>
         </div>
-        <button class="submit-btn" [disabled]="!asunto || !mensaje" (click)="enviar()">
-          → Enviar mensaje
+        <p *ngIf="error()" class="form-error">{{ error() }}</p>
+        <button
+          class="submit-btn"
+          [disabled]="!asunto || !mensaje || enviando()"
+          (click)="enviar()"
+        >
+          {{ enviando() ? 'Enviando…' : '→ Enviar mensaje' }}
         </button>
       </div>
 
@@ -126,22 +132,34 @@ export class SoporteComponent {
     },
   ];
 
+  enviando = signal(false);
+  error = signal<string | null>(null);
+
   toggleFaq(pregunta: string): void {
     this.abierta.set(this.abierta() === pregunta ? null : pregunta);
   }
 
-  enviar(): void {
+  async enviar(): Promise<void> {
     const user = this.auth.currentUser();
-    this.mensajesService.enviarMensaje({
-      nombre: user?.nombre ?? 'Usuario',
-      email: user?.email ?? '',
-      asunto: this.asunto,
-      mensaje: this.mensaje,
-      origen: 'soporte',
-      usuarioId: user?.id !== undefined ? String(user.id) : undefined,
-    });
-    this.enviado.set(true);
-    this.asunto = '';
-    this.mensaje = '';
+    this.enviando.set(true);
+    this.error.set(null);
+    try {
+      // usuarioId NO se manda desde aquí: el backend lo toma del token
+      // (Authorization header, adjunto automáticamente por authInterceptor).
+      await this.mensajesService.enviarMensaje({
+        nombre: user?.nombre ?? 'Usuario',
+        email: user?.email ?? '',
+        asunto: this.asunto,
+        mensaje: this.mensaje,
+        origen: 'soporte',
+      });
+      this.enviado.set(true);
+      this.asunto = '';
+      this.mensaje = '';
+    } catch (err) {
+      this.error.set(mensajeDeError(err, 'No pudimos enviar tu mensaje.'));
+    } finally {
+      this.enviando.set(false);
+    }
   }
 }

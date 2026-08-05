@@ -13,7 +13,11 @@ type Filtro = 'todos' | MensajeOrigen;
     <div class="panel-header">
       <div>
         <h1 class="panel-title"><span>//</span> Mensajes</h1>
-        <p class="panel-subtitle">Mensajes de Contacto (público) y Soporte (usuarios).</p>
+        <p class="panel-subtitle">
+          Mensajes de Contacto (público) y Soporte (usuarios). Se guardan solo
+          en memoria del servidor: si el backend se reinicia, la bandeja se
+          vacía.
+        </p>
       </div>
     </div>
 
@@ -24,9 +28,14 @@ type Filtro = 'todos' | MensajeOrigen;
         [class.active]="filtro() === f.value"
         (click)="filtro.set(f.value)"
       >{{ f.label }}</button>
+      <button class="mini-btn" style="margin-left:auto" (click)="cargar()">↻ Actualizar</button>
     </div>
 
-    <div class="msg-list" *ngIf="mensajesFiltrados().length; else vacio">
+    <p *ngIf="error()" class="form-error">{{ error() }}</p>
+
+    <div class="panel-card panel-empty" *ngIf="cargando()">Cargando mensajes…</div>
+
+    <div class="msg-list" *ngIf="!cargando() && mensajesFiltrados().length; else vacio">
       <div class="msg-card" *ngFor="let m of mensajesFiltrados()">
         <div class="msg-top">
           <div>
@@ -83,8 +92,9 @@ type Filtro = 'todos' | MensajeOrigen;
 export class AdminMensajesComponent {
   private mensajesService = inject(MensajesService);
 
-  private refresh = signal(0);
   filtro = signal<Filtro>('todos');
+  cargando = signal(true);
+  error = signal<string | null>(null);
 
   filtros: { value: Filtro; label: string }[] = [
     { value: 'todos', label: 'Todos' },
@@ -92,10 +102,7 @@ export class AdminMensajesComponent {
     { value: 'soporte', label: 'Soporte' },
   ];
 
-  private mensajes = computed<Mensaje[]>(() => {
-    this.refresh();
-    return this.mensajesService.getMensajes();
-  });
+  private mensajes = signal<Mensaje[]>([]);
 
   mensajesFiltrados = computed(() =>
     this.filtro() === 'todos'
@@ -103,8 +110,36 @@ export class AdminMensajesComponent {
       : this.mensajes().filter((m) => m.origen === this.filtro()),
   );
 
-  marcarRespondido(id: string): void {
-    this.mensajesService.marcarComo(id, 'respondido');
-    this.refresh.update((v) => v + 1);
+  constructor() {
+    this.cargar();
+  }
+
+  async cargar(): Promise<void> {
+    this.cargando.set(true);
+    this.error.set(null);
+    try {
+      this.mensajes.set(await this.mensajesService.getMensajes());
+    } catch {
+      this.error.set(
+        'No se pudieron cargar los mensajes. Recuerda que se guardan solo en memoria: si el backend se reinició, la bandeja empieza vacía.',
+      );
+    } finally {
+      this.cargando.set(false);
+    }
+  }
+
+  async marcarRespondido(id: string): Promise<void> {
+    const anterior = this.mensajes();
+    // Actualización optimista: se ve al instante, y si el backend falla
+    // se revierte con el error visible.
+    this.mensajes.set(
+      anterior.map((m) => (m.id === id ? { ...m, estado: 'respondido' } : m)),
+    );
+    try {
+      await this.mensajesService.marcarComo(id, 'respondido');
+    } catch {
+      this.mensajes.set(anterior);
+      this.error.set('No se pudo marcar el mensaje como respondido.');
+    }
   }
 }

@@ -6,6 +6,7 @@ import { AuthService } from '@core/services/auth.service';
 import { MensajesService } from '@core/services/mensajes.service';
 import { SalasService } from '@core/services/salas.service';
 import { User } from '@models/user.model';
+import { Mensaje } from '@models/mensaje.model';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -142,13 +143,14 @@ export class AdminDashboardComponent {
     this.reservas().filter((r) => r.estado !== 'cancelada'),
   );
   usuarios = signal<User[]>([]);
-  private mensajes = computed(() => this.mensajesService.getMensajes());
+  private mensajes = signal<Mensaje[]>([]);
   mensajesNuevos = computed(() =>
     this.mensajes().filter((m) => m.estado === 'nuevo'),
   );
 
   constructor() {
     this.auth.getAllUsers().then((lista) => this.usuarios.set(lista));
+    this.mensajesService.getMensajes().then((lista) => this.mensajes.set(lista));
   }
 
   ingresosTotales = computed(() =>

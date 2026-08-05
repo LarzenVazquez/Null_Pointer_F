@@ -2,7 +2,9 @@ import { Component, signal, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgIf } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { MensajesService } from '@core/services/mensajes.service';
+import { mensajeDeError } from '@core/utils/http-error.util';
 
 @Component({
   selector: 'app-contacto',
@@ -71,12 +73,15 @@ import { MensajesService } from '@core/services/mensajes.service';
                 [(ngModel)]="form.mensaje"
               ></textarea>
             </div>
+            <p *ngIf="error()" class="form-error">{{ error() }}</p>
             <button
               class="submit-btn"
-              [disabled]="!form.nombre || !form.email || !form.mensaje"
+              [disabled]="
+                !form.nombre || !form.email || !form.mensaje || enviando()
+              "
               (click)="enviar()"
             >
-              → Enviar mensaje
+              {{ enviando() ? 'Enviando…' : '→ Enviar mensaje' }}
             </button>
           </div>
 
@@ -126,16 +131,23 @@ import { MensajesService } from '@core/services/mensajes.service';
             </div>
           </div>
           <div class="map-placeholder">
-            <div class="map-label">// Ubicacion</div>
-            <div class="map-pin">📍</div>
-            <div class="map-text">Queretaro, Qro.</div>
-            <a
-              class="map-link"
-              href="https://maps.google.com/?q=Queretaro,Qro,Mexico"
-              target="_blank"
-              rel="noopener"
-              >Ver en Google Maps →</a
-            >
+            <iframe
+              class="map-embed"
+              [src]="mapUrl"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              title="Ubicacion de Null Pointer en el mapa"
+            ></iframe>
+            <div class="map-footer">
+              <div class="map-label">// Ubicacion</div>
+              <a
+                class="map-link"
+                [href]="mapLinkExterno"
+                target="_blank"
+                rel="noopener"
+                >Ver en Google Maps →</a
+              >
+            </div>
           </div>
           <div class="socials">
             <div class="info-label" style="margin-bottom:12px">
@@ -158,20 +170,41 @@ import { MensajesService } from '@core/services/mensajes.service';
 })
 export class ContactoComponent {
   private mensajesService = inject(MensajesService);
+  private sanitizer = inject(DomSanitizer);
+
+  // Ubicacion: https://maps.app.goo.gl/brGF2PLYy6Q4vYeZ6
+  private readonly MAP_LAT = 20.6539445;
+  private readonly MAP_LNG = -100.406094;
+
+  mapUrl: SafeResourceUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
+    `https://www.google.com/maps?q=${this.MAP_LAT},${this.MAP_LNG}&z=16&output=embed`,
+  );
+  mapLinkExterno = `https://www.google.com/maps?q=${this.MAP_LAT},${this.MAP_LNG}`;
 
   enviado = signal(false);
+  enviando = signal(false);
+  error = signal<string | null>(null);
   form = { nombre: '', email: '', asunto: '', mensaje: '' };
 
-  enviar(): void {
+  async enviar(): Promise<void> {
     if (!this.form.nombre || !this.form.email || !this.form.mensaje) return;
-    this.mensajesService.enviarMensaje({
-      nombre: this.form.nombre,
-      email: this.form.email,
-      asunto: this.form.asunto || 'Sin asunto',
-      mensaje: this.form.mensaje,
-      origen: 'contacto',
-    });
-    this.enviado.set(true);
+
+    this.enviando.set(true);
+    this.error.set(null);
+    try {
+      await this.mensajesService.enviarMensaje({
+        nombre: this.form.nombre,
+        email: this.form.email,
+        asunto: this.form.asunto || 'Sin asunto',
+        mensaje: this.form.mensaje,
+        origen: 'contacto',
+      });
+      this.enviado.set(true);
+    } catch (err) {
+      this.error.set(mensajeDeError(err, 'No pudimos enviar tu mensaje.'));
+    } finally {
+      this.enviando.set(false);
+    }
   }
 
   resetForm(): void {

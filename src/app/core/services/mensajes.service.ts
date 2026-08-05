@@ -1,51 +1,44 @@
-import { Injectable, PLATFORM_ID, inject } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
-import { Mensaje, NuevoMensajePayload } from '@models/mensaje.model';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+import { environment } from '@environments/environment';
+import { Mensaje, MensajeEstado, MensajeOrigen, NuevoMensajePayload } from '@models/mensaje.model';
 
-const MENSAJES_DB_KEY = 'np_mensajes_db';
+const API_URL = `${environment.apiUrl}/mensajes`;
 
 /**
- * Centraliza los mensajes enviados desde el formulario público de Contacto
- * y desde Soporte (panel de usuario), para que el panel de Admin los liste.
- *
- * TODO(API): reemplazar por HttpClient contra el backend real.
+ * Los mensajes de Contacto y Soporte viven SOLO en la memoria del proceso
+ * del backend (ver src/services/mensajes.service.ts): son visibles para
+ * todo el mundo mientras el servidor siga corriendo, pero si se reinicia
+ * se pierden (a propósito no se guardan en la base de datos).
  */
 @Injectable({ providedIn: 'root' })
 export class MensajesService {
-  private platformId = inject(PLATFORM_ID);
-  private isBrowser = isPlatformBrowser(this.platformId);
+  private http = inject(HttpClient);
 
-  enviarMensaje(payload: NuevoMensajePayload): void {
-    const mensaje: Mensaje = {
-      id: `msg-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`,
-      ...payload,
-      estado: 'nuevo',
-      creadoEn: new Date().toISOString(),
-    };
-    this.saveDb([mensaje, ...this.getDb()]);
+  async enviarMensaje(payload: NuevoMensajePayload): Promise<Mensaje> {
+    const res = await firstValueFrom(
+      this.http.post<{ ok: boolean; mensaje: Mensaje }>(API_URL, payload),
+    );
+    return res.mensaje;
   }
 
-  getMensajes(): Mensaje[] {
-    return this.getDb().sort((a, b) => (a.creadoEn < b.creadoEn ? 1 : -1));
+  async getMensajes(origen?: MensajeOrigen): Promise<Mensaje[]> {
+    const res = await firstValueFrom(
+      this.http.get<{ ok: boolean; mensajes: Mensaje[] }>(API_URL, {
+        params: origen ? { origen } : {},
+      }),
+    );
+    return res.mensajes;
   }
 
-  marcarComo(id: string, estado: Mensaje['estado']): void {
-    const db = this.getDb().map((m) => (m.id === id ? { ...m, estado } : m));
-    this.saveDb(db);
-  }
-
-  private getDb(): Mensaje[] {
-    if (!this.isBrowser) return [];
-    try {
-      const raw = localStorage.getItem(MENSAJES_DB_KEY);
-      return raw ? (JSON.parse(raw) as Mensaje[]) : [];
-    } catch {
-      return [];
-    }
-  }
-
-  private saveDb(db: Mensaje[]): void {
-    if (!this.isBrowser) return;
-    localStorage.setItem(MENSAJES_DB_KEY, JSON.stringify(db));
+  async marcarComo(id: string, estado: MensajeEstado): Promise<Mensaje> {
+    const res = await firstValueFrom(
+      this.http.patch<{ ok: boolean; mensaje: Mensaje }>(
+        `${API_URL}/${id}/estado`,
+        { estado },
+      ),
+    );
+    return res.mensaje;
   }
 }
