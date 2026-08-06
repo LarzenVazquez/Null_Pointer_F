@@ -1,7 +1,8 @@
-import { Component, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgIf, NgFor, NgClass } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { SalasService } from '@core/services/salas.service';
 
 type Paso = 1 | 2 | 3;
 
@@ -48,7 +49,7 @@ type Paso = 1 | 2 | 3;
         <h2 class="paso-title">// 01 — Selecciona tu sala</h2>
         <div class="sala-selector-grid">
           <div
-            *ngFor="let s of salas"
+            *ngFor="let s of salas()"
             class="sala-option"
             [class.selected]="form.sala === s.id"
             (click)="form.sala = s.id"
@@ -56,7 +57,7 @@ type Paso = 1 | 2 | 3;
             <div class="sala-opt-badge" [ngClass]="'badge-' + s.badge">
               {{ s.badgeLabel }}
             </div>
-            <div class="sala-opt-name">{{ s.id }}</div>
+            <div class="sala-opt-name">{{ s.name }}</div>
             <div class="sala-opt-precio">$ {{ s.precio }}<span>/h</span></div>
             <div class="sala-opt-cap">
               {{ s.capacidad }} músicos · {{ s.m2 }}m²
@@ -65,6 +66,9 @@ type Paso = 1 | 2 | 3;
               ✓ Seleccionada
             </div>
           </div>
+        </div>
+        <div class="panel-empty" *ngIf="salas().length === 0">
+          No hay salas disponibles por el momento.
         </div>
         <button class="btn-paso" [disabled]="!form.sala" (click)="paso.set(2)">
           Continuar → Elegir horario
@@ -158,7 +162,7 @@ type Paso = 1 | 2 | 3;
         <div class="resumen-box">
           <div class="resumen-title">// Resumen de reserva</div>
           <div class="resumen-row">
-            <span>Sala:</span><strong>{{ form.sala }}</strong>
+            <span>Sala:</span><strong>{{ salaSeleccionada()?.name }}</strong>
           </div>
           <div class="resumen-row">
             <span>Fecha:</span><strong>{{ form.fecha }}</strong>
@@ -201,6 +205,9 @@ type Paso = 1 | 2 | 3;
   `,
 })
 export class ReservasComponent {
+  private salasService = inject(SalasService);
+  private route = inject(ActivatedRoute);
+
   paso = signal<Paso>(1);
   confirmado = signal(false);
   hoy = new Date().toISOString().split('T')[0];
@@ -214,32 +221,15 @@ export class ReservasComponent {
     '20:00',
     '22:00',
   ];
-  salas = [
-    {
-      id: 'Sala A',
-      precio: 150,
-      capacidad: 6,
-      m2: 40,
-      badge: 'popular',
-      badgeLabel: 'Más popular',
-    },
-    {
-      id: 'Sala B',
-      precio: 110,
-      capacidad: 4,
-      m2: 28,
-      badge: 'pro',
-      badgeLabel: 'PRO',
-    },
-    {
-      id: 'Sala C',
-      precio: 80,
-      capacidad: 3,
-      m2: 18,
-      badge: 'std',
-      badgeLabel: 'STD',
-    },
-  ];
+
+  // El catálogo de salas viene del backend (gestionado desde el panel admin),
+  // en vez de estar hardcodeado aquí.
+  salas = this.salasService.salas;
+
+  salaSeleccionada = computed(() =>
+    this.salas().find((s) => s.id === this.form.sala),
+  );
+
   form = {
     sala: '',
     fecha: this.hoy,
@@ -251,8 +241,25 @@ export class ReservasComponent {
     notas: '',
   };
 
+  private nombrePreseleccion = this.route.snapshot.queryParamMap.get('sala');
+  private yaPreseleccionado = false;
+
+  constructor() {
+    // Permite preseleccionar una sala por nombre vía query param (?sala=Sala A),
+    // como hacen los CTA de "Reservar" del catálogo público. Reacciona cuando
+    // el catálogo de salas termina de cargarse desde el backend.
+    effect(() => {
+      if (this.yaPreseleccionado || !this.nombrePreseleccion) return;
+      const encontrada = this.salas().find((s) => s.name === this.nombrePreseleccion);
+      if (encontrada) {
+        this.form.sala = encontrada.id;
+        this.yaPreseleccionado = true;
+      }
+    });
+  }
+
   precioTotal(): number {
-    const sala = this.salas.find((s) => s.id === this.form.sala);
+    const sala = this.salaSeleccionada();
     return sala ? sala.precio * parseInt(this.form.duracion) : 0;
   }
 

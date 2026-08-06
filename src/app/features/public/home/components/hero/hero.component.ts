@@ -1,9 +1,11 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { NgIf } from '@angular/common';
+import { Router } from '@angular/router';
 import {
   EventoCalendarioService,
   EventoCalendario,
 } from '@services/evento-calendario.service';
+import { SalasService } from '@core/services/salas.service';
 
 @Component({
   selector: 'app-hero',
@@ -49,14 +51,15 @@ import {
           [style.color]="
             evento().tipo !== 'default' ? '#fff' : 'var(--np-black)'
           "
+          (click)="irAReservas()"
         >
           → Reservar sala
         </button>
-        <button class="btn-secondary">Ver salas</button>
+        <button class="btn-secondary" (click)="irASalas()">Ver salas</button>
       </div>
       <div class="np-hero-stats">
         <div class="np-stat">
-          <div class="np-stat-val">3</div>
+          <div class="np-stat-val">{{ totalSalas() }}</div>
           <div class="np-stat-lbl">Salas disponibles</div>
         </div>
         <div class="np-stat">
@@ -69,6 +72,8 @@ import {
 })
 export class HeroComponent {
   private eventoService = inject(EventoCalendarioService);
+  private salasService = inject(SalasService);
+  private router = inject(Router);
 
   private bannerVisible = signal(true);
 
@@ -77,7 +82,17 @@ export class HeroComponent {
     banner: this.bannerVisible() ? this.eventoService.activeEvent().banner : '',
   }));
 
+  totalSalas = computed(() => this.salasService.salas().length);
+
   cerrarBanner(): void {
     this.bannerVisible.set(false);
+  }
+
+  irAReservas(): void {
+    this.router.navigate(['/reservas']);
+  }
+
+  irASalas(): void {
+    this.router.navigate(['/salas']);
   }
 }

@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { NgFor, NgClass, NgIf } from '@angular/common';
+import { NgFor, NgClass, NgIf, NgStyle } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { SalasService } from '@core/services/salas.service';
 import { AuthService } from '@core/services/auth.service';
@@ -8,7 +8,7 @@ import { FavoritosService } from '@core/services/favoritos.service';
 @Component({
   selector: 'app-salas',
   standalone: true,
-  imports: [NgFor, NgClass, NgIf, RouterLink],
+  imports: [NgFor, NgClass, NgIf, NgStyle, RouterLink],
   template: `
     <!-- BREADCRUMB — elemento de navegación secundaria -->
     <nav class="np-breadcrumb" aria-label="Ruta de navegacion">
@@ -65,9 +65,12 @@ import { FavoritosService } from '@core/services/favoritos.service';
             [id]="'sala-' + sala.id.toLowerCase()"
             role="article"
           >
-            <!-- Imagen/Placeholder visual de sala -->
-            <div class="sala-img" [class]="'sala-img-' + sala.id.toLowerCase()">
-              <span class="sala-img-label">{{ sala.name }}</span>
+            <!-- Imagen de la sala (gestionada por el backend) -->
+            <div
+              class="sala-img"
+              [ngStyle]="sala.imagenUrl ? { 'background-image': 'url(' + sala.imagenUrl + ')' } : {}"
+            >
+              <span *ngIf="!sala.imagenUrl" class="sala-img-label">{{ sala.name }}</span>
               <button
                 class="fav-btn"
                 [class.active]="esFavorito(sala.id)"
@@ -255,34 +258,6 @@ import { FavoritosService } from '@core/services/favoritos.service';
         position: absolute;
         inset: 0;
         background: linear-gradient(180deg, rgba(10,10,10,0.1) 0%, rgba(10,10,10,0.75) 100%);
-      }
-
-      &.sala-img-a {
-        background-image: url('https://images.pexels.com/photos/5711950/pexels-photo-5711950.jpeg');
-        &::after {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(135deg, rgba(200,255,0,0.12) 0%, transparent 70%);
-        }
-      }
-      &.sala-img-b {
-        background-image: url('https://images.pexels.com/photos/33188274/pexels-photo-33188274.jpeg');
-        &::after {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(135deg, rgba(255,77,0,0.12) 0%, transparent 70%);
-        }
-      }
-      &.sala-img-c {
-        background-image: url('https://images.pexels.com/photos/8197270/pexels-photo-8197270.jpeg');
-        &::after {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(135deg, rgba(100,100,255,0.12) 0%, transparent 70%);
-        }
       }
     }
 
