@@ -1,55 +1,53 @@
-import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
+import { Injectable, PLATFORM_ID, effect, inject, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { AuthService } from './auth.service';
 
-const FAVORITOS_DB_KEY = 'np_favoritos_db';
+const API_URL = `${environment.apiUrl}/favoritos`;
 
-type FavoritosDb = Record<string, string[]>; // usuarioId -> salaIds
-
-/**
- * Favoritos mock por usuario, persistidos en localStorage.
- * TODO(API): reemplazar por HttpClient contra el backend real.
- */
 @Injectable({ providedIn: 'root' })
 export class FavoritosService {
+  private http = inject(HttpClient);
+  private authService = inject(AuthService);
   private platformId = inject(PLATFORM_ID);
   private isBrowser = isPlatformBrowser(this.platformId);
 
-  // Se re-emite cada vez que cambian los favoritos para que los componentes
-  // que dependan de esta señal se refresquen automáticamente.
-  private version = signal(0);
+  private favoritosSig = signal<string[]>([]);
 
-  getFavoritos(usuarioId: string): string[] {
-    this.version();
-    const db = this.getDb();
-    return db[usuarioId] ?? [];
+  constructor() {
+    if (this.isBrowser) {
+      effect(() => {
+        const user = this.authService.currentUser();
+        if (!user) {
+          this.favoritosSig.set([]);
+          return;
+        }
+        this.cargarFavoritos();
+      });
+    }
+  }
+
+  private async cargarFavoritos(): Promise<void> {
+    const res = await firstValueFrom(
+      this.http.get<{ ok: boolean; favoritos: string[] }>(API_URL),
+    );
+    this.favoritosSig.set(res.favoritos);
+  }
+
+  getFavoritos(_usuarioId: string): string[] {
+    return this.favoritosSig();
   }
 
   esFavorito(usuarioId: string, salaId: string): boolean {
     return this.getFavoritos(usuarioId).includes(salaId);
   }
 
-  toggleFavorito(usuarioId: string, salaId: string): void {
-    const db = this.getDb();
-    const actuales = db[usuarioId] ?? [];
-    db[usuarioId] = actuales.includes(salaId)
-      ? actuales.filter((id) => id !== salaId)
-      : [...actuales, salaId];
-    this.saveDb(db);
-    this.version.update((v) => v + 1);
-  }
-
-  private getDb(): FavoritosDb {
-    if (!this.isBrowser) return {};
-    try {
-      const raw = localStorage.getItem(FAVORITOS_DB_KEY);
-      return raw ? (JSON.parse(raw) as FavoritosDb) : {};
-    } catch {
-      return {};
-    }
-  }
-
-  private saveDb(db: FavoritosDb): void {
-    if (!this.isBrowser) return;
-    localStorage.setItem(FAVORITOS_DB_KEY, JSON.stringify(db));
+  async toggleFavorito(_usuarioId: string, salaId: string): Promise<void> {
+    const res = await firstValueFrom(
+      this.http.post<{ ok: boolean; favoritos: string[] }>(`${API_URL}/${salaId}/toggle`, {}),
+    );
+    this.favoritosSig.set(res.favoritos);
   }
 }

@@ -3,11 +3,6 @@ import { NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
 
-/**
- * Placeholder temporal para /usuario y /admin mientras se construyen
- * los paneles completos en la siguiente fase. Confirma que el login,
- * los guards y las rutas protegidas ya funcionan de punta a punta.
- */
 @Component({
   selector: 'app-en-construccion',
   standalone: true,

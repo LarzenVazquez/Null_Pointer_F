@@ -6,12 +6,6 @@ import { Mensaje, MensajeEstado, MensajeOrigen, NuevoMensajePayload } from '@mod
 
 const API_URL = `${environment.apiUrl}/mensajes`;
 
-/**
- * Los mensajes de Contacto y Soporte viven SOLO en la memoria del proceso
- * del backend (ver src/services/mensajes.service.ts): son visibles para
- * todo el mundo mientras el servidor siga corriendo, pero si se reinicia
- * se pierden (a propósito no se guardan en la base de datos).
- */
 @Injectable({ providedIn: 'root' })
 export class MensajesService {
   private http = inject(HttpClient);

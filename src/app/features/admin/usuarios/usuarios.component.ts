@@ -175,7 +175,6 @@ export class AdminUsuariosComponent implements OnInit {
     }
   }
 
-  // Método para manejar la activación/desactivación del usuario
   async toggleEstado(u: User): Promise<void> {
     this.error.set(null);
     this.cambiandoId.set(u.id);

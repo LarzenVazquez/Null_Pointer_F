@@ -1,4 +1,3 @@
-// src/app/services/evento-calendario.service.ts
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { environment } from '@environments/environment';

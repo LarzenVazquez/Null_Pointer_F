@@ -1,8 +1,7 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgFor, NgIf } from '@angular/common';
 import { SalasService } from '@core/services/salas.service';
-import { Sala } from '@models/sala.model';
 
 @Component({
   selector: 'app-admin-salas',
@@ -17,7 +16,7 @@ import { Sala } from '@models/sala.model';
     </div>
 
     <div class="salas-admin-grid">
-      <div class="panel-card sala-edit-card" *ngFor="let s of salas">
+      <div class="panel-card sala-edit-card" *ngFor="let s of salas()">
         <div class="sala-edit-header">
           <div class="sala-edit-name">{{ s.name }}</div>
           <span class="status-badge status-confirmada">{{ s.badgeLabel }}</span>
@@ -72,22 +71,32 @@ import { Sala } from '@models/sala.model';
 export class AdminSalasComponent {
   private salasService = inject(SalasService);
 
-  salas: Sala[] = this.salasService.getSalas();
+  salas = this.salasService.salas;
   guardadoId = signal<string | null>(null);
 
-  ediciones: Record<string, { precio: number; badgeLabel: string; descripcion: string }> =
-    Object.fromEntries(
-      this.salas.map((s) => [s.id, { precio: s.precio, badgeLabel: s.badgeLabel, descripcion: s.descripcion }]),
-    );
+  ediciones: Record<string, { precio: number; badgeLabel: string; descripcion: string }> = {};
 
-  guardar(salaId: string): void {
+  constructor() {
+    effect(() => {
+      for (const s of this.salas()) {
+        if (!this.ediciones[s.id]) {
+          this.ediciones[s.id] = {
+            precio: s.precio,
+            badgeLabel: s.badgeLabel,
+            descripcion: s.descripcion,
+          };
+        }
+      }
+    });
+  }
+
+  async guardar(salaId: string): Promise<void> {
     const cambios = this.ediciones[salaId];
-    this.salasService.updateSala(salaId, {
+    await this.salasService.updateSala(salaId, {
       precio: Number(cambios.precio),
       badgeLabel: cambios.badgeLabel,
       descripcion: cambios.descripcion,
     });
-    this.salas = this.salasService.getSalas();
     this.guardadoId.set(salaId);
     setTimeout(() => this.guardadoId.set(null), 2000);
   }

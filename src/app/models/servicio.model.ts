@@ -8,7 +8,7 @@ export interface ServicioAdicional {
   unidad: string;
   icono: string;
   detalles: string[];
-  // Si true, el usuario indica una cantidad (p.ej. número de pistas) al agregarlo.
+
   requiereCantidad: boolean;
   cantidadLabel?: string;
 }

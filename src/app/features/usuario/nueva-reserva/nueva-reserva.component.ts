@@ -50,7 +50,7 @@ type Paso = 1 | 2 | 3 | 4;
       <h2 class="paso-title">// 01 — Selecciona tu sala</h2>
       <div class="sala-selector-grid">
         <div
-          *ngFor="let s of salas"
+          *ngFor="let s of salas()"
           class="sala-option"
           [class.selected]="salaId() === s.id"
           (click)="salaId.set(s.id)"
@@ -373,7 +373,7 @@ export class NuevaReservaComponent {
     '22:00',
   ];
 
-  salas = this.salasService.getSalas();
+  salas = this.salasService.salas;
   servicios = this.serviciosService.getServicios();
 
   salaId = signal<string>('');
@@ -386,7 +386,7 @@ export class NuevaReservaComponent {
   seleccionados = signal<Set<string>>(new Set());
 
   salaSeleccionada = computed(() =>
-    this.salas.find((s) => s.id === this.salaId()),
+    this.salas().find((s) => s.id === this.salaId()),
   );
 
   precioSala = computed(

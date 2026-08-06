@@ -420,7 +420,9 @@ export class SalasComponent {
   filtroPresupuesto = signal<number>(9999);
   filtroCapacidad   = signal<number>(0);
 
-  salas = this.salasService.getSalas();
+  get salas() {
+    return this.salasService.salas();
+  }
 
   esFavorito(salaId: string): boolean {
     const usuarioId = this.auth.currentUser()?.id;

@@ -12,7 +12,6 @@ const RESULTADOS_VACIOS: ResultadoBusquedaGlobal = {
   configuracion: [],
 };
 
-// Evita disparar una petición por cada tecla.
 const DEBOUNCE_MS = 300;
 
 @Component({
@@ -187,7 +186,7 @@ export class AdminSearchComponent {
   }
 
   onFocusOut(event: FocusEvent): void {
-    // Da tiempo a que el click en un resultado se registre antes de cerrar.
+
     const relatedTarget = event.relatedTarget as HTMLElement | null;
     if (relatedTarget?.closest('.admin-search')) return;
     setTimeout(() => this.abierto.set(false), 150);

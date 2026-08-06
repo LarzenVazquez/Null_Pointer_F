@@ -17,15 +17,6 @@ export interface PayloadCifrado {
   ciphertext: string;
 }
 
-/**
- * Cifrado híbrido (RSA-OAEP + AES-256-GCM) para el login, espejo del
- * backend en src/utils/hybridCrypto.utils.ts.
- *
- * Por qué "híbrido": RSA (asimétrico) es lento y no cifra datos grandes
- * cómodamente, así que solo se usa para "envolver" (cifrar) una llave
- * AES aleatoria de un solo uso. Esa llave AES es la que realmente cifra
- * el email/password, con AES-GCM (simétrico, rápido, autenticado).
- */
 @Injectable({ providedIn: 'root' })
 export class CriptoService {
   private http = inject(HttpClient);
@@ -59,10 +50,6 @@ export class CriptoService {
     return this.llavePublicaCache;
   }
 
-  /**
-   * Cifra cualquier objeto serializable (en login: { email, password })
-   * con el esquema híbrido y regresa lo que hay que mandar al backend.
-   */
   async cifrar(datos: unknown): Promise<PayloadCifrado> {
     if (!this.isBrowser) {
       throw new Error(
@@ -72,7 +59,6 @@ export class CriptoService {
 
     const llavePublica = await this.obtenerLlavePublica();
 
-    // 1. Llave simétrica AES-256 efímera (una nueva por cada login).
     const llaveAes = await window.crypto.subtle.generateKey(
       { name: 'AES-GCM', length: 256 },
       true,
@@ -82,15 +68,12 @@ export class CriptoService {
     const iv = window.crypto.getRandomValues(new Uint8Array(12));
     const textoPlano = new TextEncoder().encode(JSON.stringify(datos));
 
-    // 2. Cifra el payload real con AES-GCM (WebCrypto pega el auth tag
-    // al final del resultado; el backend lo separa).
     const ciphertextBuffer = await window.crypto.subtle.encrypt(
       { name: 'AES-GCM', iv },
       llaveAes,
       textoPlano,
     );
 
-    // 3. Cifra la llave AES con la llave pública RSA del backend.
     const llaveAesRaw = await window.crypto.subtle.exportKey('raw', llaveAes);
     const encryptedKeyBuffer = await window.crypto.subtle.encrypt(
       { name: 'RSA-OAEP' },

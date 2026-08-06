@@ -1,16 +1,11 @@
-/* 1. Definición de variables base (sin sobreescribir el :root directamente aquí si usas temas dinámicos) */
 @use "variables";
 
-/* 2. Resets y estilos base */
 @use "global";
 
-/* 3. Componentes */
 @use "components";
 
-/* 3b. Paneles (usuario / admin) */
 @use "panel";
 
-/* 4. Temas dinámicos (esto permite que los estilos globales consuman las variables inyectadas por el servicio) */
 :root {
   --np-accent: #c8ff00; /* Valor por defecto */
   --np-bg: #0a0a0a;

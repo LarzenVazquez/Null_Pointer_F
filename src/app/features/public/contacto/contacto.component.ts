@@ -172,7 +172,6 @@ export class ContactoComponent {
   private mensajesService = inject(MensajesService);
   private sanitizer = inject(DomSanitizer);
 
-  // Ubicacion: https://maps.app.goo.gl/brGF2PLYy6Q4vYeZ6
   private readonly MAP_LAT = 20.6539445;
   private readonly MAP_LNG = -100.406094;
 

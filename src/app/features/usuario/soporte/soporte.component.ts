@@ -144,8 +144,7 @@ export class SoporteComponent {
     this.enviando.set(true);
     this.error.set(null);
     try {
-      // usuarioId NO se manda desde aquí: el backend lo toma del token
-      // (Authorization header, adjunto automáticamente por authInterceptor).
+
       await this.mensajesService.enviarMensaje({
         nombre: user?.nombre ?? 'Usuario',
         email: user?.email ?? '',

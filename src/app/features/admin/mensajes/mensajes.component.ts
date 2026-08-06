@@ -130,8 +130,7 @@ export class AdminMensajesComponent {
 
   async marcarRespondido(id: string): Promise<void> {
     const anterior = this.mensajes();
-    // Actualización optimista: se ve al instante, y si el backend falla
-    // se revierte con el error visible.
+
     this.mensajes.set(
       anterior.map((m) => (m.id === id ? { ...m, estado: 'respondido' } : m)),
     );

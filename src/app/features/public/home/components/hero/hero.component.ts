@@ -1,4 +1,3 @@
-// src/app/components/hero/hero.component.ts
 import { Component, inject, signal, computed } from '@angular/core';
 import { NgIf } from '@angular/common';
 import {
@@ -73,7 +72,6 @@ export class HeroComponent {
 
   private bannerVisible = signal(true);
 
-  // Computed que combina el evento activo del servicio con el estado local del banner
   evento = computed<EventoCalendario>(() => ({
     ...this.eventoService.activeEvent(),
     banner: this.bannerVisible() ? this.eventoService.activeEvent().banner : '',

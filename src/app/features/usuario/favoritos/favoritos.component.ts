@@ -70,11 +70,10 @@ export class FavoritosComponent {
   favoritosService = inject(FavoritosService);
 
   private usuarioId = () => String(this.auth.currentUser()?.id ?? '');
-  private salas = this.salasService.getSalas();
 
   favoritas = computed(() => {
     const ids = this.favoritosService.getFavoritos(this.usuarioId());
-    return this.salas.filter((s) => ids.includes(s.id));
+    return this.salasService.salas().filter((s) => ids.includes(s.id));
   });
 
   quitar(salaId: string): void {

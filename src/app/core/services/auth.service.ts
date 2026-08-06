@@ -185,7 +185,6 @@ export class AuthService {
     return actualizado;
   }
 
-  // --- NUEVA FUNCIÓN PARA LA BAJA LÓGICA ---
   async cambiarEstadoUsuario(userId: number, activo: boolean): Promise<User> {
     const res = await firstValueFrom(
       this.http.patch<{ ok: boolean; usuario: UsuarioDTO }>(
@@ -205,7 +204,6 @@ export class AuthService {
 
     return actualizado;
   }
-  // -----------------------------------------
 
   private async refrescarSesion(): Promise<void> {
     const res = await firstValueFrom(
