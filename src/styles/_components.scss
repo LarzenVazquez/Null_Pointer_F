@@ -529,7 +529,9 @@
 
 .np-footer-brand {
   .np-logo {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     font-size: 20px;
     font-weight: 700;
     color: var(--np-white);
@@ -540,6 +542,10 @@
     span {
       color: var(--np-accent);
     }
+  }
+  .np-logo-img {
+    width: 30px;
+    height: 30px;
   }
   p {
     font-size: 13px;
@@ -566,6 +572,28 @@
     &:hover {
       color: var(--np-white);
     }
+  }
+}
+
+.np-social {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.np-social-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #2a2a2a;
+  color: #555;
+  transition: color 0.15s, border-color 0.15s;
+  &:hover {
+    color: var(--np-black);
+    border-color: var(--np-accent);
+    background: var(--np-accent);
   }
 }
 
@@ -799,6 +827,9 @@ h1 {
 }
 
 .np-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-size: 22px;
   font-weight: 700;
   color: var(--np-white);
@@ -808,6 +839,19 @@ h1 {
   span {
     color: var(--np-accent);
   }
+}
+
+.np-logo-img {
+  display: block;
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.np-logo-text {
+  display: inline-flex;
+  align-items: center;
 }
 
 .np-nav-links {

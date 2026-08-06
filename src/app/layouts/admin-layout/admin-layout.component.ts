@@ -23,7 +23,10 @@ import { AdminSearchComponent } from '@shared/components/admin-search/admin-sear
     <div class="panel-layout">
       <aside class="panel-sidebar" aria-label="Navegación de administración">
         <div class="panel-sidebar-header">
-          <div class="panel-brand">NULL_POINTER</div>
+          <div class="panel-brand">
+            <img src="/assets/logo_null.png" alt="Null Pointer Studio" class="panel-brand-img" width="24" height="24" />
+            <span>NULL_POINTER</span>
+          </div>
           <div class="panel-suite-title">Admin suite</div>
         </div>
 
@@ -128,10 +131,18 @@ import { AdminSearchComponent } from '@shared/components/admin-search/admin-sear
         border-bottom: 1px solid #222;
       }
       .panel-brand {
+        display: flex;
+        align-items: center;
+        gap: 8px;
         color: var(--np-white);
         font-weight: 800;
         font-size: 14px;
         letter-spacing: 1px;
+      }
+      .panel-brand-img {
+        display: block;
+        object-fit: contain;
+        flex-shrink: 0;
       }
       .panel-suite-title {
         color: var(--np-accent);

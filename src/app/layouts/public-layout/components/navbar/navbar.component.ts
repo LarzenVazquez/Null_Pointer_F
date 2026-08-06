@@ -20,7 +20,10 @@ interface NavItem {
   imports: [NgIf, NgFor, RouterLink, RouterLinkActive],
   template: `
     <nav class="np-nav" role="navigation" aria-label="Navegacion principal">
-      <a class="np-logo" routerLink="/">NULL<span>_</span>POINTER</a>
+      <a class="np-logo" routerLink="/">
+        <img src="/assets/logo_null.png" alt="Null Pointer Studio" class="np-logo-img" width="36" height="36" />
+        <span class="np-logo-text">NULL<span class="accent">_</span>POINTER</span>
+      </a>
 
       <ul class="np-nav-links" role="menubar">
         <li

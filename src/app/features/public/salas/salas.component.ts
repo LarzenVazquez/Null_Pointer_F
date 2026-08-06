@@ -239,7 +239,7 @@ import { FavoritosService } from '@core/services/favoritos.service';
       grid-template-columns: 280px 1fr;
     }
 
-    /* Imagen placeholder con gradiente único por sala */
+    /* Foto de la sala con overlay para legibilidad */
     .sala-img {
       min-height: 200px;
       display: flex;
@@ -247,44 +247,54 @@ import { FavoritosService } from '@core/services/favoritos.service';
       padding: 16px;
       position: relative;
       overflow: hidden;
+      background-size: cover;
+      background-position: center;
 
       &::before {
         content: '';
         position: absolute;
         inset: 0;
-        background: repeating-linear-gradient(
-          45deg, #111 0px, #111 20px, #1a1a1a 20px, #1a1a1a 40px
-        );
+        background: linear-gradient(180deg, rgba(10,10,10,0.1) 0%, rgba(10,10,10,0.75) 100%);
       }
 
-      &.sala-img-a::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(135deg, rgba(200,255,0,0.08) 0%, transparent 70%);
+      &.sala-img-a {
+        background-image: url('https://images.pexels.com/photos/5711950/pexels-photo-5711950.jpeg');
+        &::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(135deg, rgba(200,255,0,0.12) 0%, transparent 70%);
+        }
       }
-      &.sala-img-b::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(135deg, rgba(255,77,0,0.08) 0%, transparent 70%);
+      &.sala-img-b {
+        background-image: url('https://images.pexels.com/photos/33188274/pexels-photo-33188274.jpeg');
+        &::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(135deg, rgba(255,77,0,0.12) 0%, transparent 70%);
+        }
       }
-      &.sala-img-c::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(135deg, rgba(100,100,255,0.08) 0%, transparent 70%);
+      &.sala-img-c {
+        background-image: url('https://images.pexels.com/photos/8197270/pexels-photo-8197270.jpeg');
+        &::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(135deg, rgba(100,100,255,0.12) 0%, transparent 70%);
+        }
       }
     }
 
     .sala-img-label {
       position: relative;
       z-index: 1;
-      font-size: 42px;
-      font-weight: 900;
-      color: rgba(255,255,255,0.06);
-      letter-spacing: -2px;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--np-white);
+      letter-spacing: 1px;
       line-height: 1;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.8);
     }
 
     .fav-btn {

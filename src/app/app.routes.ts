@@ -52,6 +52,27 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'privacidad',
+    loadComponent: () =>
+      import('@features/public/legal/privacidad.component').then(
+        (m) => m.PrivacidadComponent,
+      ),
+  },
+  {
+    path: 'cookies',
+    loadComponent: () =>
+      import('@features/public/legal/cookies.component').then(
+        (m) => m.CookiesComponent,
+      ),
+  },
+  {
+    path: 'faq',
+    loadComponent: () =>
+      import('@features/public/legal/faq.component').then(
+        (m) => m.FaqComponent,
+      ),
+  },
+  {
     path: 'auth',
     canActivate: [guestGuard],
     children: [
