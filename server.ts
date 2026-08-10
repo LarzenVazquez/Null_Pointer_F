@@ -15,7 +15,6 @@ export function app(): express.Express {
   server.set('view engine', 'html');
   server.set('views', browserDistFolder);
 
-  // Servir archivos estáticos del navegador
   server.get(
     '**',
     express.static(browserDistFolder, {
@@ -24,7 +23,6 @@ export function app(): express.Express {
     }),
   );
 
-  // Manejar todas las demás peticiones con el motor de SSR de Angular
   server.get('**', (req, res, next) => {
     angularApp
       .handle(req)
