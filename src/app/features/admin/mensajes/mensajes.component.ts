@@ -14,9 +14,8 @@ type Filtro = 'todos' | MensajeOrigen;
       <div>
         <h1 class="panel-title"><span>//</span> Mensajes</h1>
         <p class="panel-subtitle">
-          Mensajes de Contacto (público) y Soporte (usuarios). Se guardan solo
-          en memoria del servidor: si el backend se reinicia, la bandeja se
-          vacía.
+          Mensajes de Contacto (público) y Soporte (usuarios), guardados en la
+          base de datos.
         </p>
       </div>
     </div>
