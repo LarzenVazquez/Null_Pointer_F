@@ -1,10 +1,11 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router, NavigationEnd, RouterOutlet } from '@angular/router';
 import { NgIf } from '@angular/common';
 import { NavbarComponent } from '@layouts/public-layout/components/navbar/navbar.component';
 import { FooterComponent } from '@layouts/public-layout/components/footer/footer.component';
 import { SeasonalThemeComponent } from '@shared/components/seasonal-theme/seasonal-theme.component';
 import { EventoCalendarioService } from '@services/evento-calendario.service';
+import { AnalyticsService } from '@core/services/analytics.service';
 import { filter, map } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 
@@ -48,9 +49,10 @@ import { toSignal } from '@angular/core/rxjs-interop';
     `,
   ],
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   private themeService = inject(EventoCalendarioService);
   private router = inject(Router);
+  private analyticsService = inject(AnalyticsService);
 
   activeEvent = this.themeService.activeEvent;
 
@@ -61,4 +63,8 @@ export class AppComponent {
     ),
     { initialValue: this.router.url.startsWith('/admin') },
   );
+
+  ngOnInit(): void {
+    this.analyticsService.init();
+  }
 }
