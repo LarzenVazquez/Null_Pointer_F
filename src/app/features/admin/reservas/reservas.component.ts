@@ -2,6 +2,7 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { NgFor, NgIf, NgClass } from '@angular/common';
 import { ReservaService } from '@core/services/reserva.service';
 import { AuthService } from '@core/services/auth.service';
+import { mensajeDeError } from '@core/utils/http-error.util';
 import { User } from '@models/user.model';
 import { EstadoReserva, Reserva } from '@models/reserva.model';
 
@@ -29,6 +30,8 @@ type Filtro = 'todas' | EstadoReserva;
         {{ f.label }}
       </button>
     </div>
+
+    <div class="cancel-error" *ngIf="error()">{{ error() }}</div>
 
     <div class="panel-card" *ngIf="reservasFiltradas().length; else vacio">
       <table class="panel-table">
@@ -84,6 +87,15 @@ type Filtro = 'todas' | EstadoReserva;
     </ng-template>
   `,
   styles: [`
+    .cancel-error {
+      background: rgba(255,77,0,0.08);
+      border: 1px solid #4a2000;
+      color: var(--np-accent2);
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      padding: 10px 14px;
+      margin-bottom: 16px;
+    }
     .filtros-row { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
     .filtro-chip {
       background: #141414;
@@ -120,6 +132,7 @@ export class AdminReservasComponent implements OnInit {
   private refresh = signal(0);
   actualizandoId = signal<string | null>(null);
   filtro = signal<Filtro>('todas');
+  error = signal<string | null>(null);
 
   filtros: { value: Filtro; label: string }[] = [
     { value: 'todas', label: 'Todas' },
@@ -154,9 +167,15 @@ export class AdminReservasComponent implements OnInit {
   }
 
   async cambiarEstado(reserva: Reserva, estado: EstadoReserva): Promise<void> {
+    this.error.set(null);
     this.actualizandoId.set(reserva.id);
-    await this.reservaService.actualizarEstado(reserva.id, estado);
-    this.actualizandoId.set(null);
-    this.refresh.update((v) => v + 1);
+    try {
+      await this.reservaService.actualizarEstado(reserva.id, estado);
+      this.refresh.update((v) => v + 1);
+    } catch (err) {
+      this.error.set(mensajeDeError(err, 'No se pudo actualizar la reserva.'));
+    } finally {
+      this.actualizandoId.set(null);
+    }
   }
 }

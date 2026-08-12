@@ -6,6 +6,7 @@ import { SalasService } from '@core/services/salas.service';
 import { ServiciosService } from '@core/services/servicios.service';
 import { ReservaService } from '@core/services/reserva.service';
 import { AuthService } from '@core/services/auth.service';
+import { mensajeDeError } from '@core/utils/http-error.util';
 import { ServicioSeleccionado } from '@models/reserva.model';
 
 type Paso = 1 | 2 | 3 | 4;
@@ -460,9 +461,7 @@ export class NuevaReservaComponent {
       });
       this.confirmado.set(true);
     } catch (err) {
-      this.error.set(
-        err instanceof Error ? err.message : 'No se pudo crear la reserva.',
-      );
+      this.error.set(mensajeDeError(err, 'No se pudo crear la reserva.'));
     } finally {
       this.creando.set(false);
     }
