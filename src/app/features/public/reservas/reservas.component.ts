@@ -221,9 +221,6 @@ export class ReservasComponent {
     '20:00',
     '22:00',
   ];
-
-  // El catálogo de salas viene del backend (gestionado desde el panel admin),
-  // en vez de estar hardcodeado aquí.
   salas = this.salasService.salas;
 
   salaSeleccionada = computed(() =>
@@ -245,12 +242,11 @@ export class ReservasComponent {
   private yaPreseleccionado = false;
 
   constructor() {
-    // Permite preseleccionar una sala por nombre vía query param (?sala=Sala A),
-    // como hacen los CTA de "Reservar" del catálogo público. Reacciona cuando
-    // el catálogo de salas termina de cargarse desde el backend.
     effect(() => {
       if (this.yaPreseleccionado || !this.nombrePreseleccion) return;
-      const encontrada = this.salas().find((s) => s.name === this.nombrePreseleccion);
+      const encontrada = this.salas().find(
+        (s) => s.name === this.nombrePreseleccion,
+      );
       if (encontrada) {
         this.form.sala = encontrada.id;
         this.yaPreseleccionado = true;

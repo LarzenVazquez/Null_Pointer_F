@@ -8,7 +8,7 @@ const AUTH_URL = `${environment.apiUrl}/auth`;
 
 interface PublicKeyResponse {
   ok: boolean;
-  publicKey: string; // PEM, formato SPKI
+  publicKey: string;
 }
 
 export interface PayloadCifrado {
@@ -53,7 +53,7 @@ export class CriptoService {
   async cifrar(datos: unknown): Promise<PayloadCifrado> {
     if (!this.isBrowser) {
       throw new Error(
-        'El cifrado híbrido solo puede ejecutarse en el navegador (WebCrypto).',
+        'El cifrado híbrido solo puede ejecutarse en el navegador',
       );
     }
 

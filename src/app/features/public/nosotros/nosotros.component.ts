@@ -63,32 +63,32 @@ import { RouterLink } from '@angular/router';
 export class NosotrosComponent {
   valores = [
     {
-      icon: '🎸',
+      icon: '♪',
       title: 'Calidad de estudio',
       desc: 'Equipos de marcas profesionales (Pearl, Mapex, Marshall, Behringer) en cada sala, sin compromiso.',
     },
     {
-      icon: '🕐',
+      icon: '◷',
       title: 'Acceso 24/7',
       desc: 'Ensaya cuando tu creatividad lo pida. Disponibles las 24 horas, los 7 dias de la semana.',
     },
     {
-      icon: '💰',
+      icon: '$',
       title: 'Precios justos',
       desc: 'Tarifas transparentes desde $80/h. Sin costos ocultos. Paquetes de jornada completa disponibles.',
     },
     {
-      icon: '🔊',
+      icon: '♫',
       title: 'Acustica profesional',
       desc: 'Salas tratadas acusticamente para maxima absorcion y reflexion controlada. Cero filtraciones.',
     },
     {
-      icon: '📍',
+      icon: '⌖',
       title: 'Ubicacion central',
       desc: 'En el corazon de Queretaro, accesible desde cualquier colonia en menos de 30 minutos.',
     },
     {
-      icon: '⚡',
+      icon: '✦',
       title: 'Reserva al instante',
       desc: 'Sistema de reservas en linea disponible 24/7. Confirmacion inmediata sin esperas ni llamadas.',
     },

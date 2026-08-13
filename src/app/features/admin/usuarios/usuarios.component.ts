@@ -32,7 +32,6 @@ const ROLES_DISPONIBLES: UserRole[] = ['Administrador', 'Editor', 'Usuario'];
             <th>Teléfono</th>
             <th>Registro</th>
             <th>Estado</th>
-            <!-- Nueva columna para el estado -->
             <th>Rol</th>
             <th>Acciones</th>
           </tr>
@@ -44,7 +43,6 @@ const ROLES_DISPONIBLES: UserRole[] = ['Administrador', 'Editor', 'Usuario'];
             <td>{{ u.telefono || '—' }}</td>
             <td>{{ u.fechaRegistro | slice: 0 : 10 }}</td>
 
-            <!-- Badge indicador de activo/inactivo -->
             <td>
               <span
                 class="status-badge"
@@ -80,7 +78,6 @@ const ROLES_DISPONIBLES: UserRole[] = ['Administrador', 'Editor', 'Usuario'];
                 </option>
               </select>
 
-              <!-- Botón para alternar la baja lógica -->
               <button
                 class="mini-btn"
                 style="margin-left: 8px;"
@@ -122,7 +119,6 @@ const ROLES_DISPONIBLES: UserRole[] = ['Administrador', 'Editor', 'Usuario'];
         font-size: 13px;
         margin: 4px 0 16px;
       }
-      /* Clase para el estado inactivo */
       .status-error {
         background-color: #ff4d4d;
         color: white;

@@ -12,7 +12,6 @@ import { SalasService } from '@core/services/salas.service';
   standalone: true,
   imports: [NgIf],
   template: `
-    <!-- Banner de evento calendarizado -->
     <div
       *ngIf="evento().banner"
       class="np-event-banner"

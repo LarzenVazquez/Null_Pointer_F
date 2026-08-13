@@ -101,21 +101,21 @@ import { mensajeDeError } from '@core/utils/http-error.util';
         <aside class="contacto-info" aria-label="Datos de contacto">
           <h2 class="info-title">// Informacion</h2>
           <div class="info-item">
-            <div class="info-icon">📍</div>
+            <div class="info-icon">⌖</div>
             <div>
               <div class="info-label">Ubicacion</div>
               <div class="info-val">Queretaro, Qro., Mexico</div>
             </div>
           </div>
           <div class="info-item">
-            <div class="info-icon">📞</div>
+            <div class="info-icon">☏</div>
             <div>
               <div class="info-label">Telefono</div>
               <a class="info-val" href="tel:+524420000000">+52 442 000 0000</a>
             </div>
           </div>
           <div class="info-item">
-            <div class="info-icon">✉️</div>
+            <div class="info-icon">✉</div>
             <div>
               <div class="info-label">Correo</div>
               <a class="info-val" href="mailto:contacto@nullpointer.mx"
@@ -124,7 +124,7 @@ import { mensajeDeError } from '@core/utils/http-error.util';
             </div>
           </div>
           <div class="info-item">
-            <div class="info-icon">🕐</div>
+            <div class="info-icon">◷</div>
             <div>
               <div class="info-label">Horario</div>
               <div class="info-val">24 horas · 7 dias de la semana</div>
@@ -154,10 +154,10 @@ import { mensajeDeError } from '@core/utils/http-error.util';
               Redes sociales
             </div>
             <a class="social-btn" href="#" target="_blank" rel="noopener"
-              >📷 Instagram</a
+              >Instagram</a
             >
             <a class="social-btn" href="#" target="_blank" rel="noopener"
-              >🎵 TikTok</a
+              >TikTok</a
             >
             <a class="social-btn" href="#" target="_blank" rel="noopener"
               >▶ YouTube</a

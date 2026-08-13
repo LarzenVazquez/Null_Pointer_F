@@ -11,7 +11,7 @@ import { AuthService } from '@core/services/auth.service';
     <div class="ec-wrap">
       <div class="ec-card">
         <div class="ec-eyebrow">// Panel en construcción</div>
-        <h1>Hola, {{ auth.currentUser()?.nombre }} 👋</h1>
+        <h1>Hola, {{ auth.currentUser()?.nombre }}</h1>
         <p>
           Tu sesión funciona correctamente como
           <strong>{{ auth.currentUser()?.rol === 'admin' ? 'administrador' : 'usuario' }}</strong>.
