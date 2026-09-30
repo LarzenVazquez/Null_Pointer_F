@@ -1,5 +1,10 @@
 import { Component, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet, Router } from '@angular/router';
+import {
+  RouterLink,
+  RouterLinkActive,
+  RouterOutlet,
+  Router,
+} from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
 
 @Component({
@@ -55,7 +60,24 @@ import { AuthService } from '@core/services/auth.service';
             routerLinkActive="active"
             class="panel-nav-item"
           >
-            <span class="panel-nav-icon">⌚</span> Mi reloj
+            <span class="panel-nav-icon">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+                style="vertical-align: -2px"
+              >
+                <rect x="6" y="6" width="12" height="12" rx="3" />
+                <path d="M9 6V3h6v3M9 18v3h6v-3M18 10.5h1.5v3H18" />
+              </svg>
+            </span>
+            Mi reloj
           </a>
           <a
             routerLink="/usuario/soporte"

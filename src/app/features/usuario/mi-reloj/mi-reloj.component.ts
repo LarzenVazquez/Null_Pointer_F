@@ -1,4 +1,11 @@
-import { Component, OnDestroy, OnInit, PLATFORM_ID, inject, signal } from '@angular/core';
+import {
+  Component,
+  OnDestroy,
+  OnInit,
+  PLATFORM_ID,
+  inject,
+  signal,
+} from '@angular/core';
 import { DatePipe, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { WearableService } from '@core/services/wearable.service';
@@ -20,7 +27,8 @@ interface TipoAviso {
       <div>
         <h1 class="panel-title"><span>//</span> Mi reloj</h1>
         <p class="panel-subtitle">
-          Vincula tu smartwatch Wear OS para recibir avisos de tus reservas y salas favoritas.
+          Vincula tu smartwatch Wear OS para recibir avisos de tus reservas y
+          salas favoritas.
         </p>
       </div>
     </div>
@@ -47,7 +55,11 @@ interface TipoAviso {
           (ngModelChange)="onCodigo($event)"
           name="codigo"
         />
-        <button type="submit" class="submit-btn" [disabled]="codigoLimpio().length !== 6 || vinculando()">
+        <button
+          type="submit"
+          class="submit-btn"
+          [disabled]="codigoLimpio().length !== 6 || vinculando()"
+        >
           {{ vinculando() ? 'Vinculando...' : 'Vincular' }}
         </button>
       </form>
@@ -68,19 +80,43 @@ interface TipoAviso {
         <div class="relojes">
           @for (d of wear.dispositivos(); track d.id) {
             <div class="reloj">
-              <div class="reloj-icono" aria-hidden="true">⌚</div>
+              <div class="reloj-icono">
+                <svg
+                  width="26"
+                  height="26"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <rect x="6" y="6" width="12" height="12" rx="3" />
+                  <path d="M9 6V3h6v3M9 18v3h6v-3M18 10.5h1.5v3H18" />
+                </svg>
+              </div>
               <div class="reloj-info">
                 <div class="reloj-nombre">{{ d.nombre }}</div>
                 <div class="reloj-meta">{{ d.modelo || 'Wear OS' }}</div>
                 <div class="reloj-meta">
                   Vinculado {{ d.vinculadoEn | date: 'd MMM y, HH:mm' }}
-                  @if (d.ultimoAcceso) { · activo {{ d.ultimoAcceso | date: 'd MMM, HH:mm' }} }
+                  @if (d.ultimoAcceso) {
+                    · activo {{ d.ultimoAcceso | date: 'd MMM, HH:mm' }}
+                  }
                 </div>
               </div>
               <span class="badge" [class.badge-on]="d.pushHabilitado">
-                {{ d.pushHabilitado ? 'Push activo' : 'Sincronización periódica' }}
+                {{
+                  d.pushHabilitado ? 'Push activo' : 'Sincronización periódica'
+                }}
               </span>
-              <button class="btn-desvincular" (click)="desvincular(d.id, d.nombre)">Desvincular</button>
+              <button
+                class="btn-desvincular"
+                (click)="desvincular(d.id, d.nombre)"
+              >
+                Desvincular
+              </button>
             </div>
           }
         </div>
@@ -98,8 +134,13 @@ interface TipoAviso {
         </p>
         <div class="tipos">
           @for (t of tipos; track t.tipo) {
-            <button class="tipo-btn" [disabled]="enviando()" (click)="probar(t.tipo)">
-              <span class="tipo-icono">{{ t.icono }}</span>{{ t.etiqueta }}
+            <button
+              class="tipo-btn"
+              [disabled]="enviando()"
+              (click)="probar(t.tipo)"
+            >
+              <span class="tipo-icono">{{ t.icono }}</span
+              >{{ t.etiqueta }}
             </button>
           }
         </div>
@@ -123,7 +164,9 @@ interface TipoAviso {
           <div>
             <div class="aviso-titulo">{{ n.titulo }}</div>
             <div class="aviso-cuerpo">{{ n.cuerpo }}</div>
-            <div class="aviso-hora">{{ n.creadoEn | date: 'd MMM, HH:mm' }}</div>
+            <div class="aviso-hora">
+              {{ n.creadoEn | date: 'd MMM, HH:mm' }}
+            </div>
           </div>
         </div>
       } @empty {
@@ -133,53 +176,171 @@ interface TipoAviso {
   `,
   styles: [
     `
-      .pasos { color: var(--np-light); font-size: 13.5px; line-height: 1.8; margin: 0 0 18px; padding-left: 18px; }
-      .vincular-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+      .pasos {
+        color: var(--np-light);
+        font-size: 13.5px;
+        line-height: 1.8;
+        margin: 0 0 18px;
+        padding-left: 18px;
+      }
+      .vincular-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
       .codigo-input {
-        font-family: var(--font-mono); font-size: 28px; letter-spacing: 6px; text-align: center;
-        width: 220px; max-width: 100%; padding: 10px 12px; background: var(--np-black);
-        color: var(--np-accent); border: 1px solid #333; outline: none;
+        font-family: var(--font-mono);
+        font-size: 28px;
+        letter-spacing: 6px;
+        text-align: center;
+        width: 220px;
+        max-width: 100%;
+        padding: 10px 12px;
+        background: var(--np-black);
+        color: var(--np-accent);
+        border: 1px solid #333;
+        outline: none;
       }
-      .codigo-input:focus { border-color: var(--np-accent); }
-      .vincular-row .submit-btn { width: auto; margin: 0; }
-      .msg-ok { color: var(--np-accent); font-size: 13px; margin-top: 14px; }
-      .msg-error { color: var(--np-accent2); font-size: 13px; margin-top: 14px; }
+      .codigo-input:focus {
+        border-color: var(--np-accent);
+      }
+      .vincular-row .submit-btn {
+        width: auto;
+        margin: 0;
+      }
+      .msg-ok {
+        color: var(--np-accent);
+        font-size: 13px;
+        margin-top: 14px;
+      }
+      .msg-error {
+        color: var(--np-accent2);
+        font-size: 13px;
+        margin-top: 14px;
+      }
 
-      .relojes { display: flex; flex-direction: column; gap: 10px; }
+      .relojes {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
       .reloj {
-        display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
-        padding: 14px; border: 1px solid #222; background: var(--np-black);
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
+        padding: 14px;
+        border: 1px solid #222;
+        background: var(--np-black);
       }
-      .reloj-icono { font-size: 26px; }
-      .reloj-info { flex: 1; min-width: 180px; }
-      .reloj-nombre { color: var(--np-white); font-weight: 700; }
-      .reloj-meta { color: var(--np-gray); font-size: 12px; margin-top: 2px; }
-      .badge { font-size: 11px; padding: 4px 8px; border: 1px solid #444; color: var(--np-gray); }
-      .badge-on { border-color: var(--np-accent); color: var(--np-accent); }
+      .reloj-icono {
+        color: var(--np-accent);
+        display: flex;
+      }
+      .reloj-info {
+        flex: 1;
+        min-width: 180px;
+      }
+      .reloj-nombre {
+        color: var(--np-white);
+        font-weight: 700;
+      }
+      .reloj-meta {
+        color: var(--np-gray);
+        font-size: 12px;
+        margin-top: 2px;
+      }
+      .badge {
+        font-size: 11px;
+        padding: 4px 8px;
+        border: 1px solid #444;
+        color: var(--np-gray);
+      }
+      .badge-on {
+        border-color: var(--np-accent);
+        color: var(--np-accent);
+      }
       .btn-desvincular {
-        background: transparent; border: 1px solid var(--np-accent2); color: var(--np-accent2);
-        padding: 7px 12px; cursor: pointer; font-size: 12.5px;
+        background: transparent;
+        border: 1px solid var(--np-accent2);
+        color: var(--np-accent2);
+        padding: 7px 12px;
+        cursor: pointer;
+        font-size: 12.5px;
       }
 
-      .tipos { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; }
+      .tipos {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+        gap: 10px;
+      }
       .tipo-btn {
-        display: flex; align-items: center; gap: 10px; padding: 12px; cursor: pointer;
-        background: var(--np-black); color: var(--np-white); border: 1px solid #2a2a2a; text-align: left;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px;
+        cursor: pointer;
+        background: var(--np-black);
+        color: var(--np-white);
+        border: 1px solid #2a2a2a;
+        text-align: left;
       }
-      .tipo-btn:hover:not(:disabled) { border-color: var(--np-accent); }
+      .tipo-btn:hover:not(:disabled) {
+        border-color: var(--np-accent);
+      }
       .tipo-icono {
-        display: inline-grid; place-items: center; width: 30px; height: 30px; flex: none;
-        border-radius: 50%; background: var(--np-accent); color: var(--np-black); font-weight: 700;
+        display: inline-grid;
+        place-items: center;
+        width: 30px;
+        height: 30px;
+        flex: none;
+        border-radius: 50%;
+        background: var(--np-accent);
+        color: var(--np-black);
+        font-weight: 700;
       }
 
-      .avisos-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-      .link-btn { background: none; border: none; color: var(--np-accent); cursor: pointer; font-size: 12px; }
-      .aviso { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid #1f1f1f; }
-      .aviso:last-child { border-bottom: none; }
-      .aviso.leido { opacity: 0.55; }
-      .aviso-titulo { color: var(--np-white); font-weight: 700; font-size: 14px; }
-      .aviso-cuerpo { color: var(--np-light); font-size: 13px; margin-top: 2px; }
-      .aviso-hora { color: var(--np-gray); font-size: 11.5px; margin-top: 4px; }
+      .avisos-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+      }
+      .link-btn {
+        background: none;
+        border: none;
+        color: var(--np-accent);
+        cursor: pointer;
+        font-size: 12px;
+      }
+      .aviso {
+        display: flex;
+        gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid #1f1f1f;
+      }
+      .aviso:last-child {
+        border-bottom: none;
+      }
+      .aviso.leido {
+        opacity: 0.55;
+      }
+      .aviso-titulo {
+        color: var(--np-white);
+        font-weight: 700;
+        font-size: 14px;
+      }
+      .aviso-cuerpo {
+        color: var(--np-light);
+        font-size: 13px;
+        margin-top: 2px;
+      }
+      .aviso-hora {
+        color: var(--np-gray);
+        font-size: 11.5px;
+        margin-top: 4px;
+      }
     `,
   ],
 })
@@ -198,7 +359,11 @@ export class MiRelojComponent implements OnInit, OnDestroy {
     { tipo: 'reserva_confirmada', icono: '✓', etiqueta: 'Reserva confirmada' },
     { tipo: 'reserva_cancelada', icono: '✕', etiqueta: 'Reserva cancelada' },
     { tipo: 'recordatorio_reserva', icono: '◷', etiqueta: 'Recordatorio' },
-    { tipo: 'cambio_sala_favorita', icono: '★', etiqueta: 'Cambio en favorita' },
+    {
+      tipo: 'cambio_sala_favorita',
+      icono: '★',
+      etiqueta: 'Cambio en favorita',
+    },
   ];
 
   ngOnInit(): void {
@@ -236,7 +401,9 @@ export class MiRelojComponent implements OnInit, OnDestroy {
       this.codigo.set('');
       // El reloj consulta cada ~5 s; refrescamos la lista unas cuantas veces.
       [4000, 8000, 15000].forEach((ms) =>
-        this.refrescos.push(setTimeout(() => this.wear.cargarDispositivos().catch(() => {}), ms)),
+        this.refrescos.push(
+          setTimeout(() => this.wear.cargarDispositivos().catch(() => {}), ms),
+        ),
       );
     } catch (err) {
       this.error.set(mensajeDeError(err, 'No se pudo vincular el reloj.'));
@@ -259,16 +426,22 @@ export class MiRelojComponent implements OnInit, OnDestroy {
     this.error.set('');
     try {
       await this.wear.enviarPrueba(tipo);
-      this.mensajeOk.set('Aviso enviado. Si tu reloj no tiene push, aparecerá al sincronizar.');
+      this.mensajeOk.set(
+        'Aviso enviado. Si tu reloj no tiene push, aparecerá al sincronizar.',
+      );
     } catch (err) {
-      this.error.set(mensajeDeError(err, 'No se pudo enviar el aviso de prueba.'));
+      this.error.set(
+        mensajeDeError(err, 'No se pudo enviar el aviso de prueba.'),
+      );
     } finally {
       this.enviando.set(false);
     }
   }
 
   private refrescar(): void {
-    this.wear.cargarDispositivos().catch((err) => this.error.set(mensajeDeError(err)));
+    this.wear
+      .cargarDispositivos()
+      .catch((err) => this.error.set(mensajeDeError(err)));
     this.wear.cargarNotificaciones().catch(() => {});
   }
 }
