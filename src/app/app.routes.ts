@@ -150,6 +150,13 @@ export const routes: Routes = [
             (m) => m.SoporteComponent,
           ),
       },
+      {
+        path: 'mi-reloj',
+        loadComponent: () =>
+          import('@features/usuario/mi-reloj/mi-reloj.component').then(
+            (m) => m.MiRelojComponent,
+          ),
+      },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
   },

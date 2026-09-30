@@ -51,6 +51,13 @@ import { AuthService } from '@core/services/auth.service';
             <span class="panel-nav-icon">◎</span> Mi perfil
           </a>
           <a
+            routerLink="/usuario/mi-reloj"
+            routerLinkActive="active"
+            class="panel-nav-item"
+          >
+            <span class="panel-nav-icon">⌚</span> Mi reloj
+          </a>
+          <a
             routerLink="/usuario/soporte"
             routerLinkActive="active"
             class="panel-nav-item"
