@@ -10,6 +10,7 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '@environments/environment';
 import { CriptoService } from '@core/services/cripto.service';
+import { AUTH_TOKEN_KEY, SesionService } from '@core/services/sesion.service';
 import {
   AuthCredentials,
   AuthResponse,
@@ -19,7 +20,7 @@ import {
   rolPrincipal,
 } from '@models/user.model';
 
-export const AUTH_TOKEN_KEY = 'np_auth_token';
+export { AUTH_TOKEN_KEY } from '@core/services/sesion.service';
 const AUTH_USER_KEY = 'np_auth_user';
 
 const API_URL = `${environment.apiUrl}/auth`;
@@ -69,6 +70,7 @@ export class AuthService {
   private platformId = inject(PLATFORM_ID);
   private isBrowser = isPlatformBrowser(this.platformId);
   private cripto = inject(CriptoService);
+  private sesion = inject(SesionService);
 
   private currentUserSig = signal<User | null>(this.loadUserFromStorage());
 
@@ -79,8 +81,15 @@ export class AuthService {
 
   constructor() {
     if (this.isBrowser) {
+      // El interceptor renueva el token cuando expira; aquí solo reflejamos el resultado.
+      this.sesion.renovada$.subscribe((res) =>
+        this.persistSession(mapearUsuario(res.usuario), res.accessToken),
+      );
+      this.sesion.expirada$.subscribe(() => this.limpiarSesionLocal());
+
+      // Al abrir la web se renueva la sesión (si la cookie de refresh sigue vigente).
       this.refrescarSesion().catch(() => {
-        this.limpiarSesionLocal();
+        /* sin sesión: expirada$ ya limpió el estado local */
       });
     }
   }
@@ -105,10 +114,6 @@ export class AuthService {
     );
 
     return this.login({ email: payload.email, password: payload.password });
-  }
-
-  recoverPassword(email: string): Promise<{ sent: boolean }> {
-    return Promise.resolve({ sent: true });
   }
 
   async logout(): Promise<void> {
@@ -206,15 +211,8 @@ export class AuthService {
   }
 
   private async refrescarSesion(): Promise<void> {
-    const res = await firstValueFrom(
-      this.http.post<LoginResponse>(
-        `${API_URL}/refresh`,
-        {},
-        { withCredentials: true },
-      ),
-    );
-    const user = mapearUsuario(res.usuario);
-    this.persistSession(user, res.accessToken);
+    // renovar() emite renovada$, que ya actualiza el usuario y el token.
+    await this.sesion.renovar();
   }
 
   private limpiarSesionLocal(): void {

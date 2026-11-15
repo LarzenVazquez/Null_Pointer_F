@@ -90,13 +90,6 @@ export const routes: Routes = [
             (m) => m.RegistroComponent,
           ),
       },
-      {
-        path: 'recuperar-password',
-        loadComponent: () =>
-          import('@features/auth/recuperar-password/recuperar-password.component').then(
-            (m) => m.RecuperarPasswordComponent,
-          ),
-      },
       { path: '', redirectTo: 'login', pathMatch: 'full' },
     ],
   },

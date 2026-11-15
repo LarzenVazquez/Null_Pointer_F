@@ -61,7 +61,7 @@ import { mensajeDeError } from '@core/utils/http-error.util';
         </form>
 
         <div class="auth-links">
-          <a routerLink="/auth/recuperar-password">¿Olvidaste tu contraseña?</a>
+          <a routerLink="/contacto">¿Olvidaste tu contraseña? Escríbenos</a>
           <span class="dot">·</span>
           <a routerLink="/auth/registro">Crear cuenta nueva</a>
         </div>
@@ -174,7 +174,12 @@ export class LoginComponent {
   email = signal('');
   password = signal('');
   loading = signal(false);
-  error = signal<string | null>(null);
+  // El interceptor manda aquí con ?expirada=1 cuando la sesión ya no se pudo renovar.
+  error = signal<string | null>(
+    this.route.snapshot.queryParamMap.has('expirada')
+      ? 'Tu sesión expiró. Inicia sesión de nuevo.'
+      : null,
+  );
 
   async onSubmit(event: Event): Promise<void> {
     event.preventDefault();
