@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { NgIf, NgFor, NgClass } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { SalasService } from '@core/services/salas.service';
+import { hoyLocal } from '@core/utils/fecha.util';
 
 type Paso = 1 | 2 | 3;
 
@@ -210,7 +211,7 @@ export class ReservasComponent {
 
   paso = signal<Paso>(1);
   confirmado = signal(false);
-  hoy = new Date().toISOString().split('T')[0];
+  hoy = hoyLocal();
   horas = [
     '08:00',
     '10:00',

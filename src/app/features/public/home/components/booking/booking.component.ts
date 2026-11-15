@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { hoyLocal } from '@core/utils/fecha.util';
 
 @Component({
   selector: 'app-booking',
@@ -60,7 +61,7 @@ import { FormsModule } from '@angular/forms';
 export class BookingComponent {
   booking = {
     sala: 'Sala A',
-    fecha: new Date().toISOString().split('T')[0],
+    fecha: hoyLocal(),
     hora: '10:00',
     duracion: '1 hora',
   };

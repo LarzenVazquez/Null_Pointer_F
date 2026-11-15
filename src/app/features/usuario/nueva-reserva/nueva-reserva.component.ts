@@ -8,6 +8,7 @@ import { ReservaService } from '@core/services/reserva.service';
 import { AuthService } from '@core/services/auth.service';
 import { mensajeDeError } from '@core/utils/http-error.util';
 import { ServicioSeleccionado } from '@models/reserva.model';
+import { hoyLocal } from '@core/utils/fecha.util';
 
 type Paso = 1 | 2 | 3 | 4;
 
@@ -362,7 +363,7 @@ export class NuevaReservaComponent {
   creando = signal(false);
   error = signal<string | null>(null);
 
-  hoy = new Date().toISOString().split('T')[0];
+  hoy = hoyLocal();
   horas = [
     '08:00',
     '10:00',
