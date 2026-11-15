@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgFor, NgIf } from '@angular/common';
 import { Router } from '@angular/router';
@@ -7,7 +7,7 @@ import { ServiciosService } from '@core/services/servicios.service';
 import { ReservaService } from '@core/services/reserva.service';
 import { AuthService } from '@core/services/auth.service';
 import { mensajeDeError } from '@core/utils/http-error.util';
-import { ServicioSeleccionado } from '@models/reserva.model';
+import { Reserva, ServicioSeleccionado } from '@models/reserva.model';
 import { hoyLocal } from '@core/utils/fecha.util';
 
 type Paso = 1 | 2 | 3 | 4;
@@ -26,6 +26,8 @@ type Paso = 1 | 2 | 3 | 4;
       </div>
     </div>
 
+    <!-- Mientras no se confirma: asistente de 4 pasos. Al confirmar se reemplaza por la vista de éxito. -->
+    <ng-container *ngIf="!reservaCreada(); else exito">
     <div
       class="stepper"
       role="progressbar"
@@ -93,9 +95,17 @@ type Paso = 1 | 2 | 3 | 4;
         </div>
         <div class="np-field">
           <label for="nr-hora">Hora de inicio</label>
-          <select id="nr-hora" [(ngModel)]="hora" name="hora">
-            <option *ngFor="let h of horas" [value]="h">{{ h }}</option>
+          <select
+            id="nr-hora"
+            [(ngModel)]="hora"
+            name="hora"
+            [disabled]="horasDisponibles().length === 0"
+          >
+            <option *ngFor="let h of horasDisponibles()" [value]="h">{{ h }}</option>
           </select>
+          <small *ngIf="horasDisponibles().length === 0" class="sin-horarios">
+            Ya no quedan horarios hoy. Elige otra fecha.
+          </small>
         </div>
         <div class="np-field">
           <label for="nr-duracion">Duración</label>
@@ -231,20 +241,74 @@ type Paso = 1 | 2 | 3 | 4;
       </div>
     </div>
 
-    <div *ngIf="confirmado()" class="confirmacion">
-      <div class="conf-icon">✓</div>
-      <h2>¡Reserva confirmada!</h2>
-      <p>
-        Tu sesión en <strong>{{ salaSeleccionada()?.name }}</strong> quedó
-        agendada para el {{ fecha() }}.
-      </p>
-      <button class="btn-paso" (click)="irAMisReservas()">
-        Ver mis reservas
-      </button>
-    </div>
+    </ng-container>
+
+    <!-- VISTA DE ÉXITO: usa los datos que devolvió el servidor (precio real incluido) -->
+    <ng-template #exito>
+      <div class="exito" *ngIf="reservaCreada() as r" role="status">
+        <div class="confirmacion exito-cabecera">
+          <div class="conf-icon">✓</div>
+          <h2>¡Reserva confirmada!</h2>
+          <p>
+            Tu ensayo en <strong>{{ r.salaNombre }}</strong> quedó agendado.
+            Si vinculaste tu reloj, ahí te llegará el recordatorio.
+          </p>
+        </div>
+
+        <div class="resumen-box">
+          <div class="resumen-title">// Detalle de tu reserva</div>
+          <div class="resumen-row">
+            <span>Sala:</span><strong>{{ r.salaNombre }}</strong>
+          </div>
+          <div class="resumen-row">
+            <span>Fecha:</span><strong>{{ r.fecha }}</strong>
+          </div>
+          <div class="resumen-row">
+            <span>Hora:</span
+            ><strong>{{ r.hora }} · {{ r.duracionHoras }}h</strong>
+          </div>
+          <div class="resumen-row">
+            <span>Sala ({{ r.duracionHoras }}h):</span
+            ><strong>&#36;{{ r.precioSala }}</strong>
+          </div>
+          <div class="resumen-row" *ngFor="let s of r.servicios">
+            <span>{{ s.nombre }} &times; {{ s.cantidad }}:</span
+            ><strong>&#36;{{ s.subtotal }}</strong>
+          </div>
+          <div class="resumen-row total">
+            <span>Total:</span><strong>&#36;{{ r.precioTotal }} MXN</strong>
+          </div>
+        </div>
+
+        <div class="paso-btns exito-btns">
+          <button class="btn-paso" (click)="irAMisReservas()">
+            Ver mis reservas
+          </button>
+          <button class="btn-back" (click)="nuevaReserva()">
+            + Hacer otra reserva
+          </button>
+        </div>
+      </div>
+    </ng-template>
   `,
   styles: [
     `
+      .exito {
+        max-width: 640px;
+        margin: 0 auto;
+      }
+      .exito-cabecera {
+        padding: 24px 0 32px;
+      }
+      .exito-btns {
+        justify-content: center;
+      }
+      .sin-horarios {
+        display: block;
+        margin-top: 6px;
+        color: var(--np-accent2);
+        font-size: 12px;
+      }
       .auth-error {
         background: rgba(255, 77, 0, 0.1);
         border: 1px solid var(--np-accent2);
@@ -359,7 +423,8 @@ export class NuevaReservaComponent {
   private router = inject(Router);
 
   paso = signal<Paso>(1);
-  confirmado = signal(false);
+  /** Reserva que devolvió el servidor; cuando existe se muestra la vista de éxito. */
+  reservaCreada = signal<Reserva | null>(null);
   creando = signal(false);
   error = signal<string | null>(null);
 
@@ -383,6 +448,22 @@ export class NuevaReservaComponent {
   hora = signal<string>('10:00');
   duracionHoras = signal<number>(1);
   notas = signal<string>('');
+
+  /** Si la fecha es hoy, solo se ofrecen las horas que todavía no pasan. */
+  horasDisponibles = computed(() => {
+    if (this.fecha() !== hoyLocal()) return this.horas;
+    const ahora = new Date();
+    const horaActual = `${String(ahora.getHours()).padStart(2, '0')}:${String(ahora.getMinutes()).padStart(2, '0')}`;
+    return this.horas.filter((h) => h > horaActual);
+  });
+
+  constructor() {
+    // Si cambia la fecha y la hora elegida ya no está disponible, se pasa a la primera libre.
+    effect(() => {
+      const disponibles = this.horasDisponibles();
+      if (!disponibles.includes(this.hora())) this.hora.set(disponibles[0] ?? '');
+    });
+  }
 
   private cantidades = signal<Record<string, number>>({});
   seleccionados = signal<Set<string>>(new Set());
@@ -451,7 +532,7 @@ export class NuevaReservaComponent {
     this.error.set(null);
     this.creando.set(true);
     try {
-      await this.reservaService.crearReserva({
+      const reserva = await this.reservaService.crearReserva({
         usuarioId: String(usuarioId),
         salaId: this.salaId(),
         fecha: this.fecha(),
@@ -460,12 +541,26 @@ export class NuevaReservaComponent {
         servicios: this.serviciosSeleccionados(),
         notas: this.notas() || undefined,
       });
-      this.confirmado.set(true);
+      this.reservaCreada.set(reserva);
+      if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
       this.error.set(mensajeDeError(err, 'No se pudo crear la reserva.'));
     } finally {
       this.creando.set(false);
     }
+  }
+
+  /** Limpia el asistente para empezar otra reserva desde el paso 1. */
+  nuevaReserva(): void {
+    this.reservaCreada.set(null);
+    this.paso.set(1);
+    this.salaId.set('');
+    this.fecha.set(hoyLocal());
+    this.duracionHoras.set(1);
+    this.notas.set('');
+    this.seleccionados.set(new Set());
+    this.cantidades.set({});
+    this.error.set(null);
   }
 
   irAMisReservas(): void {
